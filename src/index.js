@@ -17,6 +17,7 @@ client.on("message", (msg) => {
 });
 
 // load config and login
+console.log("[Config] Checking for config file...");
 config.getConfig((config) => {
     client.login(config.discord.token);
 });
