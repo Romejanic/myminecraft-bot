@@ -16,20 +16,25 @@ function defaultConfig() {
             database: "myminecraft"
         },
         imageServer: {
+            _comment: "Enter the hostname or IP address of the machine running the bot (and therefore image server). This isn't hardcoded for privacy reasons.",
+            host: "ENTER-YOUR-HOST-ADDRESS",
             port: 55500
         }
     }, null, 4);
 }
 
 function checkIntegrity(config) {
-    if(typeof config !== "object" || !config.discord || !config.database)
+    if(typeof config !== "object" || !config.discord || !config.database || !config.imageServer)
         return false;
     let discordExp = ["token"];
     let databaseExp = ["user","pass","host","port","database"];
+    let imgServerExp = ["host","port"];
     let discordKeys = Object.keys(config.discord).sort();
     let databaseKeys = Object.keys(config.database).sort();
+    let imgServerKeys = Object.keys(config.imageServer).sort();
     return discordExp.every(v => discordKeys.includes(v))
-        && databaseExp.every(v => databaseKeys.includes(v));
+        && databaseExp.every(v => databaseKeys.includes(v))
+        && imgServerExp.every(v => imgServerKeys.includes(v));
 }
 
 module.exports = {
