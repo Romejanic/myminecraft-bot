@@ -53,7 +53,7 @@ const COMMANDS = {
 
     },
 
-    "mc?status": async (args, channel, db) => {
+    "mc?status": async (args, channel, db, imgServer) => {
         let embed = new MessageEmbed()
             .setTitle("Loading...")
             .setColor("#ffff00")
@@ -130,9 +130,11 @@ const COMMANDS = {
                     playerText = "\n\n**Player Sample**\n";
                     playerText += ping.players.sample.map(s => s + "\n");
                 }
+                let iconUrl = imgServer.getUrlFor(ping.favicon);
                 embed
                     .setColor(EMBED_COLOR)
                     .setDescription(":white_check_mark: Online!" + playerText)
+                    .setThumbnail(iconUrl)
                     .addField("Player Count", `${ping.players.online} / ${ping.players.max}`, true)
                     .addField("Ping", `${ping.ping} ms`, true)
                     .addField("Version", ping.version.name);
@@ -170,14 +172,14 @@ function parseIpString(ip) {
 
 module.exports = {
 
-    parse: async (text, msg, db) => {
+    parse: async (text, msg, db, imgServer) => {
         // parse arguments and command name
         let args = text.split(" ");
         let cmd = args[0].toLowerCase();
         args = args.splice(1);
         // attempt to execute the command
         if(typeof COMMANDS[cmd] === "function") {
-            await COMMANDS[cmd](args, msg.channel, db);
+            await COMMANDS[cmd](args, msg.channel, db, imgServer);
         } else {
             sendCommandError(msg.channel, cmd);
         }

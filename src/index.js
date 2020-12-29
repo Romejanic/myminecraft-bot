@@ -3,6 +3,7 @@ const config = require("./conf");
 const commands = require("./commands");
 
 let db = require("./db");
+let imgServer = require("./img-server");
 let client = new Client();
 
 client.on("ready", () => {
@@ -27,7 +28,7 @@ client.on("message", (msg) => {
     let text = msg.content.trim();
     if(commands.matchPrefix(text)) {
         // pass the text off to be parsed as a command
-        commands.parse(text, msg, db).catch((e) => {
+        commands.parse(text, msg, db, imgServer).catch((e) => {
             console.error("Unexpected error while processing command!", e);
             commands.sendError(msg.channel, "Sorry, something went wrong while performing that command!");
         });
@@ -36,7 +37,9 @@ client.on("message", (msg) => {
 
 // load config and login
 console.log("[Config] Checking for config file...");
-config.getConfig((c) => {
+config.getConfig(async (c) => {
     db = db(c); // pass config to database
+    imgServer = imgServer(c);
+    await imgServer.start(); // start image server
     client.login(c.discord.token);
 });

@@ -32,26 +32,31 @@ function quickHash(str) {
 module.exports = function(config) {
 
     return {
-        start: async () => {
-            let server = http.createServer((req, res) => {
-                let hash = url.parse(req.url).path.substring(1);
-                if(cache[hash]) {
-                    let imgData = Buffer.from(cache[hash].substring("data:image/png;base64,".length), "base64");
-                    res.writeHead(200, "OK", {
-                        "Content-Type": "image/png"
-                    });
-                    res.write(imgData);
+        start: () => {
+            return Promise.resolve().then(() => {
+                let server = http.createServer((req, res) => {
+                    let hash = url.parse(req.url).path.substring(1);
+                    if(cache[hash]) {
+                        let imgData = Buffer.from(cache[hash].substring("data:image/png;base64,".length), "base64");
+                        res.writeHead(200, "OK", {
+                            "Content-Type": "image/png"
+                        });
+                        res.write(imgData);
+                        res.end();
+                    } else {
+                        res.writeHead(404, "Not Found", {
+                            "Content-Type": "application/json"
+                        });
+                        res.write('{"error":"Invalid hash"}');
+                    }
                     res.end();
-                } else {
-                    res.writeHead(404, "Not Found", {
-                        "Content-Type": "application/json"
-                    });
-                    res.write('{"error":"Invalid hash"}');
-                }
-                res.end();
-            });
-            server.listen(config.imageServer.port, () => {
-                console.log("[Img] Image server listening for requests");
+                });
+                server.on("error", (err) => {
+                    console.error("[Img] Unexpected error:", err);
+                });
+                server.listen(config.imageServer.port, () => {
+                    console.log("[Img] Image server listening for requests");
+                });
             });
         },
 
