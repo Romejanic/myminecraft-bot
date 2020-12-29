@@ -1,0 +1,37 @@
+{
+    "mc?help": {
+        "args": {
+            "[command]": "(Optional) The command to get help for."
+        },
+        "message": "Lists all commands and their usage."
+    },
+
+    "mc?info": {
+        "message": "Shows bot version and system information."
+    },
+
+    "mc?status": {
+        "args": {
+            "[server number]": "(Optional) The number of the server to get the status for. When omitted, shows all servers."
+        },
+        "message": "Shows the status and player count for all servers, or the specified server."
+    },
+
+    "mc?add": {
+        "args": {
+            "[name]": "(Optional) The name of the server",
+            "[ip:port]": "(Optional) The IP address and port of the server (e.g. `play.hypixel.net:25565`)"
+        },
+        "message": "Adds a new server to the bot. If no arguments are given, a creation wizard is created.",
+        "admin": true
+    },
+
+    "mc?remove": {
+        "args": {
+            "<server number>": "The number of the server to remove."
+        },
+        "message": "Removes a server from the bot.",
+        "admin": true
+    }
+
+}
