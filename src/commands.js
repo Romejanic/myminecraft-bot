@@ -48,8 +48,29 @@ const COMMANDS = {
         channel.send("info!");
     },
 
-    "mc?status": (args, channel) => {
+    "mc?status": async (args, channel, db) => {
+        let embed = new MessageEmbed()
+            .setTitle("Loading...")
+            .setColor("#ffff00")
+            .setDescription("Loading, please wait...");
+        let msg = await channel.send(embed);
 
+        if(args.length < 1) {
+            // get list of servers from database
+            db.getServers(channel.guild.id).then((data) => {
+                embed
+                    .setTitle("Your Servers")
+                    .setColor(EMBED_COLOR)
+                    .setDescription("To view more info on a specific server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)");
+                for(let i in data) {
+                    let server = data[i];
+                    let hrIdx = Number(i) + 1;
+                    embed.addField(hrIdx + ". " + server.name, !server.online ? ":x: Offline" : ":white_check_mark: " + server.online + " online", true);
+                }
+
+                msg.edit(embed);
+            });
+        }
     }
 
 };
@@ -64,14 +85,14 @@ function sendCommandError(channel, cmdName) {
 
 module.exports = {
 
-    parse: async (text, msg) => {
+    parse: async (text, msg, db) => {
         // parse arguments and command name
         let args = text.split(" ");
         let cmd = args[0].toLowerCase();
         args = args.splice(1);
         // attempt to execute the command
         if(typeof COMMANDS[cmd] === "function") {
-            await COMMANDS[cmd](args, msg.channel);
+            await COMMANDS[cmd](args, msg.channel, db);
         } else {
             sendCommandError(msg.channel, cmd);
         }

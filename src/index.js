@@ -1,6 +1,7 @@
 const { Client } = require("discord.js");
 const config = require("./conf");
 const commands = require("./commands");
+const db = require("./db")(config);
 
 let client = new Client();
 
@@ -26,7 +27,7 @@ client.on("message", (msg) => {
     let text = msg.content.trim();
     if(commands.matchPrefix(text)) {
         // pass the text off to be parsed as a command
-        commands.parse(text, msg).catch((e) => {
+        commands.parse(text, msg, db).catch((e) => {
             console.error("Unexpected error while processing command!", e);
             commands.sendError(msg.channel, "Sorry, something went wrong while performing that command!");
         });
