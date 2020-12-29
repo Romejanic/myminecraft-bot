@@ -1,4 +1,5 @@
-const { MessageEmbed, MessageAttachment } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
+const Pinger = require("minecraft-pinger");
 
 const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=52288&scope=bot";
 const EMBED_COLOR = "#4e7a39";
@@ -61,11 +62,29 @@ const COMMANDS = {
                 embed
                     .setTitle("Your Servers")
                     .setColor(EMBED_COLOR)
-                    .setDescription("To view more info on a specific server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)");
+                    .setDescription("To view more info on a specific server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)")
+                    .setFooter(data.length + " / 5 server slots used");
                 for(let i in data) {
                     let server = data[i];
                     let hrIdx = Number(i) + 1;
-                    embed.addField(hrIdx + ". " + server.name, !server.online ? ":x: Offline" : ":white_check_mark: " + server.online + " online", true);
+                    embed.addField(hrIdx + ". " + server.name, "Pinging...", true);
+                    // ping the server
+                    let ip = server.ip;
+                    let port = 25565;
+                    if(ip.indexOf(":") > -1) {
+                        let portStr = ip.substring(ip.indexOf(":")+1);
+                        if(!isNaN(portStr)) {
+                            port = Number(portStr);
+                        }
+                        ip = ip.substring(0, ip.indexOf(":"));
+                    }
+                    Pinger.pingPromise(ip,port).then((ping) => {
+                        embed.fields[i].value = ":white_check_mark: " + ping.players.online + " / " + ping.players.max + " online";
+                    }).catch(() => {
+                        embed.fields[i].value = ":x: Offline";
+                    }).finally(() => {
+                        msg.edit(embed);
+                    });
                 }
 
                 msg.edit(embed);

@@ -19,7 +19,7 @@ module.exports = function(config) {
                 },
                 {
                     name: "Hypixel",
-                    ip: "hypixel.net",
+                    ip: "mc.hypixel.net",
                     online: false
                 }
                 ]
