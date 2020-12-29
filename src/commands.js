@@ -56,6 +56,18 @@ const COMMANDS = {
             .setDescription("Loading, please wait...");
         let msg = await channel.send(embed);
 
+        let serverCount = await db.getServerCount(channel.guild.id);
+        if(serverCount == 0) {
+            embed
+                .setTitle("No servers!")
+                .setColor("#ff0000")
+                .setDescription("You don't have any servers added yet. Please type `mc?add` to add a server.");
+            msg.edit(embed);
+            return;
+        } else if(serverCount == 1) {
+            args[0] = "1";
+        }
+
         if(args.length < 1) {
             // get list of servers from database
             db.getServers(channel.guild.id).then((data) => {
@@ -69,15 +81,7 @@ const COMMANDS = {
                     let hrIdx = Number(i) + 1;
                     embed.addField(hrIdx + ". " + server.name, "Pinging...", true);
                     // ping the server
-                    let ip = server.ip;
-                    let port = 25565;
-                    if(ip.indexOf(":") > -1) {
-                        let portStr = ip.substring(ip.indexOf(":")+1);
-                        if(!isNaN(portStr)) {
-                            port = Number(portStr);
-                        }
-                        ip = ip.substring(0, ip.indexOf(":"));
-                    }
+                    let { ip, port } = parseIpString(server.ip);
                     Pinger.pingPromise(ip,port).then((ping) => {
                         embed.fields[i].value = ":white_check_mark: " + ping.players.online + " / " + ping.players.max + " online";
                     }).catch(() => {
@@ -86,7 +90,52 @@ const COMMANDS = {
                         msg.edit(embed);
                     });
                 }
-
+                // update the message embed
+                msg.edit(embed);
+            }).catch((e) => {
+                console.error("Failed to get server list!", e);
+                embed
+                    .setTitle("Error getting servers!")
+                    .setColor("#ff0000")
+                    .setDescription("Failed to load servers from database.\nPlease contact the developer if the error persists!");
+                msg.edit(embed);
+            });
+        } else {
+            let serverNo = args[0].trim();
+            if(isNaN(serverNo) || serverNo < 1 || serverNo > serverCount) {
+                embed
+                    .setTitle("Invalid server number!")
+                    .setColor("#ff0000")
+                    .setDescription("Please enter a valid number between 1 and " + serverCount);
+                msg.edit(embed);
+                return;
+            }
+            // get server info from database
+            let serverData = await db.getServer(channel.guild.id, Number(serverNo) - 1);
+            // update embed
+            embed
+                .setTitle(Number(serverNo) + ". " + serverData.name)
+                .setDescription("Pinging, please wait...");
+            msg.edit(embed);
+            // ping the server
+            let { ip, port } = parseIpString(serverData.ip);
+            Pinger.pingPromise(ip,port).then((ping) => {
+                let playerText = "";
+                if(ping.players.online > 0 && ping.players.sample && ping.players.sample.length > 0) {
+                    playerText = "\n\n**Player Sample**\n";
+                    playerText += ping.players.sample.map(s => s + "\n");
+                }
+                embed
+                    .setColor(EMBED_COLOR)
+                    .setDescription(":white_check_mark: Online!" + playerText)
+                    .addField("Player Count", `${ping.players.online} / ${ping.players.max}`, true)
+                    .addField("Ping", `${ping.ping} ms`, true)
+                    .addField("Version", ping.version.name);
+            }).catch(() => {
+                embed
+                    .setColor("#ff0000")
+                    .setDescription(":x: Could not reach server!\n\nThe server is either offline, or could not be pinged");
+            }).finally(() => {
                 msg.edit(embed);
             });
         }
@@ -100,6 +149,18 @@ function sendCommandError(channel, cmdName) {
         .setColor("#ff0000")
         .setDescription("Sorry, `" + cmdName + "` is not a valid command!\nType `mc?help` for a list of commands.");
     channel.send(embed);
+}
+
+function parseIpString(ip) {
+    let port = 25565;
+    if(ip.indexOf(":") > -1) {
+        let portStr = ip.substring(ip.indexOf(":")+1);
+        if(!isNaN(portStr)) {
+            port = Number(portStr);
+        }
+        ip = ip.substring(0, ip.indexOf(":"));
+    }
+    return { ip, port };
 }
 
 module.exports = {
