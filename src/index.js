@@ -1,8 +1,8 @@
 const { Client } = require("discord.js");
 const config = require("./conf");
 const commands = require("./commands");
-const db = require("./db")(config);
 
+let db = require("./db");
 let client = new Client();
 
 client.on("ready", () => {
@@ -37,5 +37,6 @@ client.on("message", (msg) => {
 // load config and login
 console.log("[Config] Checking for config file...");
 config.getConfig((c) => {
+    db = db(c); // pass config to database
     client.login(c.discord.token);
 });

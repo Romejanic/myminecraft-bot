@@ -2,27 +2,27 @@ const mysql = require("mysql");
 
 module.exports = function(config) {
 
-    // todo: create pool connection
+    const pool = mysql.createPool({
+        user: config.database.user,
+        password: config.database.pass,
+        host: config.database.host,
+        port: config.database.port,
+        database: config.database.database
+    });
+
+    pool.on("error", (err) => {
+        console.error("Unexpected database error:", err);
+    });
 
     return {
 
         getServers: (guildId) => {
             // todo: query database for servers
-            return Promise.resolve().then(() => {
-                return [
-                {
-                    name: "My Server",
-                    ip: "myserver.example.com:42000",
-                    online: "2 / 10",
-                    motd: "Play now! It's fun on here.",
-                    players: [ "Example", "ChrisyBoy2" ]
-                },
-                {
-                    name: "Hypixel",
-                    ip: "mc.hypixel.net",
-                    online: false
-                }
-                ]
+            return new Promise((resolve, reject) => {
+                pool.query("SELECT name, ip FROM servers WHERE guild = ?", [ guildId ], (err, results) => {
+                    if(err) reject(err);
+                    resolve(results);
+                });
             });
         }
 
