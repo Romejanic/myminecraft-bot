@@ -3,7 +3,7 @@ const config = require("./conf");
 const commands = require("./commands");
 
 let db = require("./db");
-let imgServer = require("./img-server");
+let imgServer = require("./img-api");
 let client = new Client();
 
 client.on("ready", () => {
@@ -39,7 +39,6 @@ client.on("message", (msg) => {
 console.log("[Config] Checking for config file...");
 config.getConfig(async (c) => {
     db = db(c); // pass config to database
-    imgServer = imgServer(c);
-    await imgServer.start(); // start image server
+    imgServer = imgServer(c); // pass config to img api
     client.login(c.discord.token);
 });

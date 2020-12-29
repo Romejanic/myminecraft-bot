@@ -1,3 +1,12 @@
+/**
+ * DEPRECATED!
+ * This was working, but I realized you could stil get the original URL
+ * from Discord (therefore exposing my IP address).
+ * 
+ * I rewrote it as a standalone Heroku app which the bot simply uploads
+ * the image data to instead of hosting them itself.
+ */
+
 const http = require("http");
 const crypto = require("crypto");
 const url = require("url");

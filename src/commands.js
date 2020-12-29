@@ -130,15 +130,19 @@ const COMMANDS = {
                     playerText = "\n\n**Player Sample**\n";
                     playerText += ping.players.sample.map(s => s + "\n");
                 }
-                let iconUrl = imgServer.getUrlFor(ping.favicon);
                 embed
                     .setColor(EMBED_COLOR)
                     .setDescription(":white_check_mark: Online!" + playerText)
-                    .setThumbnail(iconUrl)
                     .addField("Player Count", `${ping.players.online} / ${ping.players.max}`, true)
                     .addField("Ping", `${ping.ping} ms`, true)
                     .addField("Version", ping.version.name);
-            }).catch(() => {
+                // get url for server icon
+                imgServer.getUrlFor(ping.favicon).then((url) => {
+                    embed.setThumbnail(url);
+                    msg.edit(embed);
+                }).catch(console.error);
+            }).catch((e) => {
+                console.error(e);
                 embed
                     .setColor("#ff0000")
                     .setDescription(":x: Could not reach server!\n\nThe server is either offline, or could not be pinged");
