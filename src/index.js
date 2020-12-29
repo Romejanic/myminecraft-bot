@@ -1,10 +1,15 @@
 const { Client } = require("discord.js");
 const config = require("./conf");
+const commands = require("./commands");
 
 let client = new Client();
 
 client.on("ready", () => {
     console.log("[Bot] Login successful!");
+    client.user.setPresence({
+        activity: { name: "mc?help for commands", type: "PLAYING" },
+        status: "online"
+    }).catch(console.error);
 });
 
 client.on("message", (msg) => {
@@ -12,12 +17,24 @@ client.on("message", (msg) => {
     if(msg.author.bot) {
         return;
     }
-    // basic test
-    msg.channel.send(`Hello ${msg.author}! You said: **${msg.content}**`);
+    // check the channel is valid
+    if(!commands.isChannelValid(msg.channel)) {
+        commands.sendDmError(msg.channel);
+        return;
+    }
+    // check if the prefix is matched
+    let text = msg.content.trim();
+    if(commands.matchPrefix(text)) {
+        // pass the text off to be parsed as a command
+        commands.parse(text, msg).catch((e) => {
+            console.error("Unexpected error while processing command!", e);
+            commands.sendError(msg.channel, "Sorry, something went wrong while performing that command!");
+        });
+    }
 });
 
 // load config and login
 console.log("[Config] Checking for config file...");
-config.getConfig((config) => {
-    client.login(config.discord.token);
+config.getConfig((c) => {
+    client.login(c.discord.token);
 });
