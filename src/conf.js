@@ -14,6 +14,9 @@ function defaultConfig() {
             host: "localhost",
             port: 3306,
             database: "myminecraft"
+        },
+        imageServer: {
+            port: 55500
         }
     }, null, 4);
 }

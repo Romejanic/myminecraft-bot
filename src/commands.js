@@ -49,6 +49,10 @@ const COMMANDS = {
         channel.send("info!");
     },
 
+    "mc?list": (args, channel) => {
+
+    },
+
     "mc?status": async (args, channel, db) => {
         let embed = new MessageEmbed()
             .setTitle("Loading...")
@@ -115,6 +119,7 @@ const COMMANDS = {
             // update embed
             embed
                 .setTitle(Number(serverNo) + ". " + serverData.name)
+                .addField("Server IP", serverData.ip, true)
                 .setDescription("Pinging, please wait...");
             msg.edit(embed);
             // ping the server

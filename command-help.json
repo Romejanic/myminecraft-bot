@@ -10,6 +10,10 @@
         "message": "Shows bot version and system information."
     },
 
+    "mc?list": {
+        "message": "Lists all servers and their IPs."
+    },
+
     "mc?status": {
         "args": {
             "[server number]": "(Optional) The number of the server to get the status for. When omitted, shows all servers."
