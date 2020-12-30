@@ -63,7 +63,8 @@ const COMMANDS = {
         embed
             .setTitle("Server List")
             .setColor(EMBED_COLOR)
-            .setDescription("For more information about a server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)");
+            .setDescription("For more information about a server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)")
+            .setFooter(servers.length + " / 5 server slots used");
         servers.forEach((val, i) => {
             embed.addField((i+1) + ". " + val.name, val.ip, true);
         });
