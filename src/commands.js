@@ -3,7 +3,9 @@ const Pinger = require("minecraft-pinger");
 
 const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=52288&scope=bot";
 const EMBED_COLOR = "#4e7a39";
+const LOAD_COLOR  = "#ffff00";
 const COMMAND_HELP = require("../command-help.json");
+const db = require("./db");
 
 const COMMANDS = {
 
@@ -49,14 +51,30 @@ const COMMANDS = {
         channel.send("info!");
     },
 
-    "mc?list": (args, channel) => {
+    "mc?list": async (args, channel, db) => {
+        let embed = new MessageEmbed()
+            .setTitle("Loading...")
+            .setColor(LOAD_COLOR)
+            .setDescription("Loading, please wait...");
+        let msg = await channel.send(embed);
+        let servers = await db.getServers(channel.guild.id);
 
+        // populate embed with server data
+        embed
+            .setTitle("Server List")
+            .setColor(EMBED_COLOR)
+            .setDescription("For more information about a server, type `mc?status [server number]`.\n(e.g. `mc?status 2`)");
+        servers.forEach((val, i) => {
+            embed.addField((i+1) + ". " + val.name, val.ip, true);
+        });
+
+        msg.edit(embed);
     },
 
     "mc?status": async (args, channel, db, imgServer) => {
         let embed = new MessageEmbed()
             .setTitle("Loading...")
-            .setColor("#ffff00")
+            .setColor(LOAD_COLOR)
             .setDescription("Loading, please wait...");
         let msg = await channel.send(embed);
 
@@ -128,7 +146,7 @@ const COMMANDS = {
                 let playerText = "";
                 if(ping.players.online > 0 && ping.players.sample && ping.players.sample.length > 0) {
                     playerText = "\n\n**Player Sample**\n";
-                    playerText += ping.players.sample.map(s => s + "\n");
+                    playerText += ping.players.sample.map(s => s.name + "\n");
                 }
                 embed
                     .setColor(EMBED_COLOR)
