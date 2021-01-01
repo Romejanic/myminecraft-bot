@@ -6,7 +6,6 @@ const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=79315074
 const EMBED_COLOR = "#4e7a39";
 const LOAD_COLOR  = "#ffff00";
 const COMMAND_HELP = require("../command-help.json");
-const db = require("./db");
 
 const COMMANDS = {
 
@@ -148,7 +147,7 @@ const COMMANDS = {
                 let playerText = "";
                 if(ping.players.online > 0 && ping.players.sample && ping.players.sample.length > 0) {
                     playerText = "\n\n**Player Sample**\n";
-                    playerText += ping.players.sample.map(s => s.name + "\n");
+                    playerText += ping.players.sample.map(s=>s.name).join("\n");
                 }
                 let motd = ChatFormat.format(ping.description).split("\n").map(s=>s.trim()).join("\n");
                 playerText += "\n\n**Server Description**\n```" + motd + "```";
