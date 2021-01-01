@@ -27,8 +27,9 @@ client.on("message", (msg) => {
     // check if the prefix is matched
     let text = msg.content.trim();
     if(commands.matchPrefix(text)) {
+        let wizardsOps = { msg, client };
         // pass the text off to be parsed as a command
-        commands.parse(text, msg, db, imgServer).catch((e) => {
+        commands.parse(text, msg, db, imgServer, wizardsOps).catch((e) => {
             console.error("Unexpected error while processing command!", e);
             commands.sendError(msg.channel, "Sorry, something went wrong while performing that command!");
         });

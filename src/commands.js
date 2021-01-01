@@ -1,11 +1,13 @@
 const { MessageEmbed } = require("discord.js");
 const Pinger = require("minecraft-pinger");
 const ChatFormat = require("mc-chat-format");
+const Wizard = require("./wizard");
 
 const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=52288&scope=bot";
 const EMBED_COLOR = "#4e7a39";
 const LOAD_COLOR  = "#ffff00";
 const COMMAND_HELP = require("../command-help.json");
+const conf = require("./conf");
 
 const COMMANDS = {
 
@@ -177,6 +179,148 @@ const COMMANDS = {
                 msg.edit(embed);
             });
         }
+    },
+
+    "mc?add": async (args, channel, db, imgServer, wizardOps) => {
+        let serverCount = await db.getServerCount(channel.guild.id);
+        if(serverCount >= 5) {
+            let embed = new MessageEmbed()
+                .setTitle("Too many servers!")
+                .setColor("#ff0000")
+                .setDescription("You cannot add any more servers because you've reached your 5 server limit!\n\nPlease delete a server with `mc?remove` before adding another one.");
+            await channel.send(embed);
+            return;
+        }
+
+        Wizard.createWizard([
+            // step 1
+            async (msg, state) => {
+                if(state.init) {
+                    // initialise wizard
+                    state.embed = new MessageEmbed()
+                        .setTitle("1) Enter name")
+                        .setColor(EMBED_COLOR)
+                        .setDescription("Please enter a name for your server (max 30 characters)!")
+                        .setFooter("This action will be cancelled if ignored for 1 minute.");
+                    let m = await channel.send(state.embed);
+                    state.update = async () => {
+                        m.edit(state.embed);
+                    };
+                } else {
+                    // validate input
+                    let nameIn = msg.content.trim();
+                    if(nameIn.length <= 0 || nameIn.length > 30) {
+                        state.embed.setColor("#ff0000")
+                                    .setDescription("Please enter a valid name for the server! (max 30 characters)");
+                        await state.update();
+                        return false;
+                    } else {
+                        state.name = nameIn;
+                        state.embed.setColor(EMBED_COLOR)
+                                    .setTitle("2) Enter IP")
+                                    .setDescription(
+                                        "Enter your server's IP address (and optionally port).\n\n" +
+                                        "Examples:\n```\n" +
+                                        "mc.hypixel.net\n" +
+                                        "us.mineplex.com\n" +
+                                        "play.example.com:45000\n" +
+                                        "```\n\n**NOTE:** Your server must be publicly available (i.e. not on your local network)."
+                                    );
+                        await state.update();
+                        return true;
+                    }
+                }
+            },
+            // step 2 (and 3)
+            async (msg, state, cancel) => {
+                let ipIn = msg.content.trim();
+                if(ipIn.length <= 0 || ipIn.length > 255) {
+                    state.embed.setColor("#ff0000")
+                                .setDescription("The entered IP is invalid! Please enter a IP address between 0 and 255 characters long!");
+                    await state.update();
+                    return false;
+                }
+                state.address = ipIn;
+                // ping server
+                state.embed.setColor("#ffff00")
+                            .setTitle("3) Validating...")
+                            .setDescription("Your server is now being pinged in order to validate it. Please wait...\n\nYour server must be online for this step.");
+                await state.update();
+
+                try {
+                    let { ip, port } = parseIpString(state.address);
+                    let data = await Pinger.pingPromise(ip, port);
+
+                    let motd = ChatFormat.format(data.description).split("\n").map(s=>s.trim()).join("\n");
+                    let thumb = await imgServer.getUrlFor(data.favicon);
+
+                    state.details = "\n\n**Chosen Name**\n" + state.name + "\n\n**Description**\n```" + motd + "```";
+                    state.embed.setColor(EMBED_COLOR)
+                                .setTitle("4) Confirmation")
+                                .setDescription("Please confirm that this is your server by responding with 'yes' or 'no'." + state.details)
+                                .addField("Player Count", data.players.online + " / " + data.players.max, true)
+                                .addField("Version", data.version.name, true)
+                                .setThumbnail(thumb);
+                    await state.update();
+                    return true;
+                } catch(e) {
+                    cancel();
+                    state.embed.setColor("#ff0000")
+                                .setTitle("Cannot validate!")
+                                .setDescription("Sorry, your server could not be validated!\nPlease ensure it is online and publicly accesible.")
+                                .setFooter("Please run `mc?add` again to restart the process.");
+                    await state.update();
+                }
+            },
+            // step 4
+            async (msg, state, cancel) => {
+                let confirmIn = msg.content.trim().toLowerCase();
+                let yesIn = confirmIn.startsWith("y");
+                let noIn = confirmIn.startsWith("n");
+                if(!yesIn && !noIn) {
+                    state.embed.setColor("#ff0000")
+                                .setDescription("Please enter **either** 'yes' or 'no' to confirm." + state.details);
+                    await state.update();
+                    return false;
+                } else if(yesIn) {
+                    state.embed.setColor("#ffff00")
+                                .setTitle("Saving...")
+                                .setDescription("Please wait while your server information is saved.")
+                                .setFooter("");
+                    state.embed.fields = [];
+                    await state.update();
+                    // commit info to database
+                    try {
+                        await db.newServer(msg.guild, state.name, state.address);
+                        serverCount++;
+                        state.embed.setColor("#00ff00")
+                                    .setTitle("Saved!")
+                                    .setDescription(state.name + " has been added to your server list!")
+                                    .addField("Server Number", String(serverCount))
+                                    .setFooter("Type `mc?status " + serverCount + "` to view this server");
+                        await state.update();
+                        return true;
+                    } catch(e) {
+                        console.error(e);
+                        state.embed.setColor("#ff0000")
+                                    .setTitle("Error")
+                                    .setDescription("An unexpected error occurred while saving your server! Please try again later.")
+                                    .setFooter("If the issue persists, please submit a bug report!");
+                        await state.update();
+                    }
+
+                } else if(noIn) {
+                    cancel();
+                    state.embed.setTitle("Cancelled")
+                        .setDescription("Your server addition was cancelled.")
+                        .setFooter("")
+                        .setThumbnail("")
+                        .setColor("#ff0000");
+                    state.embed.fields = [];
+                    await state.update();
+                }
+            }
+        ], wizardOps.msg, wizardOps.client);
     }
 
 };
@@ -203,14 +347,14 @@ function parseIpString(ip) {
 
 module.exports = {
 
-    parse: async (text, msg, db, imgServer) => {
+    parse: async (text, msg, db, imgServer, wizardOps) => {
         // parse arguments and command name
         let args = text.split(" ");
         let cmd = args[0].toLowerCase();
         args = args.splice(1);
         // attempt to execute the command
         if(typeof COMMANDS[cmd] === "function") {
-            await COMMANDS[cmd](args, msg.channel, db, imgServer);
+            await COMMANDS[cmd](args, msg.channel, db, imgServer, wizardOps);
         } else {
             sendCommandError(msg.channel, cmd);
         }

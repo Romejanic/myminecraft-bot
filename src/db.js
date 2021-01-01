@@ -43,6 +43,16 @@ module.exports = function(config) {
                     resolve(results[0].n);
                 });
             });
+        },
+
+        newServer: (guildId, name, ip) => {
+            return new Promise((resolve, reject) => {
+                pool.query("INSERT INTO servers (guild, name, ip) VALUES (?,?,?)", [ guildId, name, ip ], (err, results) => {
+                    if(err) reject(err);
+                    if(!results || results.affectedRows < 1) reject("Could not insert");
+                    resolve();
+                });
+            });
         }
 
     };
