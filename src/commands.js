@@ -1,5 +1,6 @@
 const { MessageEmbed } = require("discord.js");
 const Pinger = require("minecraft-pinger");
+const ChatFormat = require("mc-chat-format");
 
 const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=52288&scope=bot";
 const EMBED_COLOR = "#4e7a39";
@@ -149,6 +150,8 @@ const COMMANDS = {
                     playerText = "\n\n**Player Sample**\n";
                     playerText += ping.players.sample.map(s => s.name + "\n");
                 }
+                let motd = ChatFormat.format(ping.description).split("\n").map(s=>s.trim()).join("\n");
+                playerText += "\n\n**Server Description**\n```" + motd + "```";
                 embed
                     .setColor(EMBED_COLOR)
                     .setDescription(":white_check_mark: Online!" + playerText)
@@ -161,10 +164,16 @@ const COMMANDS = {
                     msg.edit(embed);
                 }).catch(console.error);
             }).catch((e) => {
-                console.error(e);
+                // only print if it's actually an error
+                let refused = true;
+                if(e.code !== "ECONNREFUSED") {
+                    console.error(e);
+                    refused = false;
+                }
+                // update embed
                 embed
                     .setColor("#ff0000")
-                    .setDescription(":x: Could not reach server!\n\nThe server is either offline, or could not be pinged");
+                    .setDescription(":x: Could not reach server!\n\n " + (refused ? "The server is probably offline." : "An expected error may have occurred."));
             }).finally(() => {
                 msg.edit(embed);
             });
