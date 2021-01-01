@@ -321,6 +321,10 @@ const COMMANDS = {
                 }
             }
         ], wizardOps.msg, wizardOps.client);
+    },
+
+    "mc?remove": async (args, channel, db) => {
+        channel.send("remove!");
     }
 
 };
