@@ -22,11 +22,7 @@
     },
 
     "mc?add": {
-        "args": {
-            "[name]": "(Optional) The name of the server",
-            "[ip:port]": "(Optional) The IP address and port of the server (e.g. `play.hypixel.net:25565`)"
-        },
-        "message": "Adds a new server to the bot. If no arguments are given, a creation wizard is created.",
+        "message": "Adds a new server to the bot.",
         "admin": true
     },
 
