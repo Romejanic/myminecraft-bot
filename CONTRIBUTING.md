@@ -28,7 +28,7 @@ If your pull request gets accepted, awesome work! You're now an official contrib
 
 ### 5. Include your Discord username!
 
-For extra fun, include your full Discord username (name and discriminator number). If you're a member of this server when the pull request gets accepted, you will receive the Contributor rank and appear in the sidebar!
+For extra fun, include your full Discord username (e.g. `@memedealer#6607`) in your pull request description. If you're a member of this server when the pull request gets accepted, you will receive the Contributor rank and appear in the sidebar!
 
 ## Conclusion
 Thank you for reading, and thanks for contributing to the project. Happy coding!
