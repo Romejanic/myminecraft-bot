@@ -25,6 +25,11 @@ function createWizard(steps, startMessage, client, timeout = 60, onTimeout) {
         // skip if this is the incorrect user or channel responding, or we're still waiting on another step
         if(msg.author.id !== userId || msg.channel.id !== channelId || blockFlag)
             return;
+        // if user issues another command, cancel the wizard
+        if(msg.content.trim().startsWith("mc?")) {
+            cancelFn();
+            return;
+        }
         // delete user's message
         let m = { content: msg.content, guild: msg.guild.id };
         await msg.delete();
@@ -46,6 +51,7 @@ function createWizard(steps, startMessage, client, timeout = 60, onTimeout) {
     // create timeout function
     let timeoutId;
     resetTimeoutFn = () => {
+        clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
             cancelFn();
             if(onTimeout) {
