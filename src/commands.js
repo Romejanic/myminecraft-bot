@@ -149,7 +149,7 @@ const COMMANDS = {
                 let playerText = "";
                 if(ping.players.online > 0 && ping.players.sample && ping.players.sample.length > 0) {
                     playerText = "\n\n**Player Sample**\n";
-                    playerText += ping.players.sample.map(s=>s.name).join("\n");
+                    playerText += ping.players.sample.map(s=>ChatFormat.format(s.name)).join("\n");
                 }
                 let motd = ChatFormat.format(ping.description).split("\n").map(s=>s.trim()).join("\n");
                 playerText += "\n\n**Server Description**\n```" + motd + "```";
