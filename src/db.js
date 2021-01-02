@@ -27,7 +27,7 @@ module.exports = function(config) {
 
         getServer: (guildId, idx) => {
             return new Promise((resolve, reject) => {
-                pool.query("SELECT name,ip FROM servers WHERE guild = ? LIMIT ?,1", [ guildId, idx ], (err, results) => {
+                pool.query("SELECT name,ip,id FROM servers WHERE guild = ? LIMIT ?,1", [ guildId, idx ], (err, results) => {
                     if(err) reject(err);
                     if(!results || results.length < 1) reject("Could not find server at index " + idx);
                     resolve(results[0]);
@@ -50,6 +50,16 @@ module.exports = function(config) {
                 pool.query("INSERT INTO servers (guild, name, ip) VALUES (?,?,?)", [ guildId, name, ip ], (err, results) => {
                     if(err) reject(err);
                     if(!results || results.affectedRows < 1) reject("Could not insert");
+                    resolve();
+                });
+            });
+        },
+
+        deleteServer: (guildId, id) => {
+            return new Promise((resolve, reject) => {
+                pool.query("DELETE FROM servers WHERE guild = ? AND id = ?", [ guildId, id ], (err, results) => {
+                    if(err) reject(err);
+                    if(!results || results.affectedRows < 1) reject("Could not delete");
                     resolve();
                 });
             });

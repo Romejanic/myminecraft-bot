@@ -323,8 +323,109 @@ const COMMANDS = {
         ], wizardOps.msg, wizardOps.client);
     },
 
-    "mc?remove": async (args, channel, db) => {
-        channel.send("remove!");
+    "mc?remove": async (args, channel, db, imgServer, wizardOps) => {
+        // create embed
+        let embed = new MessageEmbed()
+            .setTitle("Loading...")
+            .setColor("#ffff00")
+            .setDescription("Loading server information, please wait...");
+        let msg = await channel.send(embed);
+        let serverCount = await db.getServerCount(channel.guild.id);
+
+        // check arguments are correct
+        if(serverCount < 1) {
+            embed.setTitle("No servers!")
+                .setColor("#ff0000")
+                .setDescription("You do not have any servers added!\nPlease use `mc?add` to add some before using this command.");
+            await msg.edit(embed);
+            return;
+        }
+
+        if(args.length < 1) {
+            embed.setTitle("Missing arguments!")
+                .setColor("#ff0000")
+                .setDescription("Please enter a server number to remove!\n\ne.g. `mc?remove 2`");
+            await msg.edit(embed);
+            return;
+        }
+
+        let serverNo = args[0];
+        if(isNaN(serverNo) || Number(serverNo) < 1 || Number(serverNo) > serverCount) {
+            embed.setTitle("Invalid number")
+                .setColor("#ff0000")
+                .setDescription("Please enter a valid server number between 1 and " + serverCount);
+            await msg.edit(embed);
+            return;
+        }
+        let serverIdx = Number(serverNo) - 1;
+        let serverData = await db.getServer(channel.guild.id, serverIdx);
+        let serverAddr = parseIpString(serverData.ip);
+        let serverPing;
+
+        try {
+            serverPing = await Pinger.pingPromise(serverAddr.ip, serverAddr.port);
+        } catch(e) {
+            serverPing = null;
+        }
+
+        // confirmation of deletion
+        Wizard.createWizard([
+            async (input, state, cancel) => {
+                if(state.init) {
+                    embed.setTitle("Remove " + serverData.name)
+                        .setColor(EMBED_COLOR)
+                        .setDescription("Are you sure you want to remove this server?\nPlease type either `yes` or `no` to confirm.")
+                        .addField("Server Number", Number(serverNo), true)
+                        .addField("IP Address", serverData.ip, true)
+                        .setFooter("This action will be cancelled after 20 seconds.");
+                    if(serverPing) {
+                        embed.setThumbnail(await imgServer.getUrlFor(serverPing.favicon));
+                    }
+                    await msg.edit(embed);
+                } else {
+                    let confirmIn = input.content.trim().toLowerCase();
+                    let yesIn = confirmIn.startsWith("y");
+                    let noIn = confirmIn.startsWith("n");
+                    if(!yesIn && !noIn) {
+                        embed.setTitle("Invalid input")
+                            .setColor("#ff0000")
+                            .setDescription("Please enter **either** 'yes' or 'no'.");
+                        await msg.edit(embed);
+                        return false;
+                    } else if(yesIn) {
+                        embed.setTitle("Please wait...")
+                            .setColor("#ffff00")
+                            .setDescription("Please wait while your changes are saved...")
+                            .setFooter("");
+                        await msg.edit(embed);
+                        // save to database
+                        try {
+                            await db.deleteServer(channel.guild.id, serverData.id);
+                            embed.setTitle("Removed!")
+                                .setColor("#00ff00")
+                                .setDescription(serverData.name + " was removed from your server list!\nYou now have " + (serverCount-1) + " / 5 remaining server slots.")
+                                .setFooter("PLEASE NOTE some of your server numbers may have changed.");
+                            embed.fields = [];
+                            await msg.edit(embed);
+                        } catch(e)  {
+                            console.error(e);
+                            embed.setTitle("Error")
+                                .setDescription("Something went wrong while removing your server!\n\nPlease try again later.");
+                            await msg.edit(embed);
+                        }
+                        return true;
+                    } else if(noIn) {
+                        cancel();
+                        embed.setTitle("Cancelled")
+                            .setColor("#ff0000")
+                            .setDescription("Removal of server " + serverData.name + " was cancelled.")
+                            .setFooter("");
+                        embed.fields = [];
+                        await msg.edit(embed);
+                    }
+                }
+            }
+        ], wizardOps.msg, wizardOps.client, 20);
     }
 
 };

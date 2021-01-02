@@ -31,7 +31,8 @@ You will need:
 - a [Discord bot token](https://discord.com/developers/applications)
 
 ```sh
-$ git clone https://github.com/Romejanic/myminecraft-bot.git $ cd myminecraft-bot
+$ git clone https://github.com/Romejanic/myminecraft-bot.git
+$ cd myminecraft-bot
 $ npm run start      # generate config
 $ nano config.json   # add discord token and mysql login
 $ npm run start      # start bot
