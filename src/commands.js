@@ -61,6 +61,15 @@ const COMMANDS = {
         let msg = await channel.send(embed);
         let servers = await db.getServers(channel.guild.id);
 
+        if(servers.length == 0) {
+            embed
+                .setTitle("No servers!")
+                .setColor("#ff0000")
+                .setDescription("You don't have any servers added yet. Please type `mc?add` to add a server.");
+            await msg.edit(embed);
+            return;
+        }
+
         // populate embed with server data
         embed
             .setTitle("Server List")
@@ -87,7 +96,7 @@ const COMMANDS = {
                 .setTitle("No servers!")
                 .setColor("#ff0000")
                 .setDescription("You don't have any servers added yet. Please type `mc?add` to add a server.");
-            msg.edit(embed);
+            await msg.edit(embed);
             return;
         } else if(serverCount == 1) {
             args[0] = "1";
@@ -336,7 +345,7 @@ const COMMANDS = {
         if(serverCount < 1) {
             embed.setTitle("No servers!")
                 .setColor("#ff0000")
-                .setDescription("You do not have any servers added!\nPlease use `mc?add` to add some before using this command.");
+                .setDescription("You do not have any servers added! Please type `mc?add` to add a server.");
             await msg.edit(embed);
             return;
         }
