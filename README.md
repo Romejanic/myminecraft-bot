@@ -1,5 +1,5 @@
 # myminecraft-bot
-A Discord bot for checking statues of personal Minecraft servers.
+A Discord bot for checking statuses of personal Minecraft servers.
 
 ## Official Links
 [Invite to your server](https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=60480&scope=bot)
