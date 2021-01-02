@@ -191,6 +191,11 @@ const COMMANDS = {
     },
 
     "mc?add": async (args, channel, db, imgServer, wizardOps) => {
+        if(!wizardOps.msg.member.hasPermission("ADMINISTRATOR")) {
+            await sendPermissionError(channel);
+            return;
+        }
+
         let serverCount = await db.getServerCount(channel.guild.id);
         if(serverCount >= 5) {
             let embed = new MessageEmbed()
@@ -333,6 +338,11 @@ const COMMANDS = {
     },
 
     "mc?remove": async (args, channel, db, imgServer, wizardOps) => {
+        if(!wizardOps.msg.member.hasPermission("ADMINISTRATOR")) {
+            await sendPermissionError(channel);
+            return;
+        }
+
         // create embed
         let embed = new MessageEmbed()
             .setTitle("Loading...")
@@ -445,6 +455,14 @@ function sendCommandError(channel, cmdName) {
         .setColor("#ff0000")
         .setDescription("Sorry, `" + cmdName + "` is not a valid command!\nType `mc?help` for a list of commands.");
     channel.send(embed);
+}
+
+async function sendPermissionError(channel) {
+    let embed = new MessageEmbed()
+        .setTitle("You don't have permission")
+        .setColor("#ff0000")
+        .setDescription("Sorry, but you don't have permission to use this command!\nYou must have the `Administrator` permission on your role.");
+    await channel.send(embed);
 }
 
 function parseIpString(ip) {
