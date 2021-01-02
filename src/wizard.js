@@ -55,7 +55,7 @@ function createWizard(steps, startMessage, client, timeout = 60, onTimeout) {
         timeoutId = setTimeout(() => {
             cancelFn();
             if(onTimeout) {
-                onTimeout();
+                onTimeout(state);
             }
         }, timeout * 1000);
     };

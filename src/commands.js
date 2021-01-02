@@ -361,7 +361,14 @@ const COMMANDS = {
                     await state.update();
                 }
             }
-        ], wizardOps.msg, wizardOps.client);
+        ], wizardOps.msg, wizardOps.client, 60, (state) => {
+            state.embed.setTitle("Timed out")
+                .setColor("#ff0000")
+                .setDescription("You took too long to respond, so this action was cancelled.")
+                .setFooter("");
+            state.embed.fields = [];
+            state.update();
+        });
     },
 
     "mc?remove": async (args, channel, db, imgServer, wizardOps) => {
@@ -471,7 +478,14 @@ const COMMANDS = {
                     }
                 }
             }
-        ], wizardOps.msg, wizardOps.client, 20);
+        ], wizardOps.msg, wizardOps.client, 20, () => {
+            embed.setTitle("Timed out")
+                .setColor("#ff0000")
+                .setDescription("You took too long to respond, so this action was cancelled.")
+                .setFooter("");
+            embed.fields = [];
+            msg.edit(embed);
+        });
     }
 
 };
