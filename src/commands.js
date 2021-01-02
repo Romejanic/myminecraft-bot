@@ -11,13 +11,17 @@ const conf = require("./conf");
 
 const COMMANDS = {
 
-    "mc?help": (args, channel) => {
+    "mc?help": (args, channel, db, imgServer, wizardOps) => {
         let embed = new MessageEmbed();
         embed.setTitle("Command Help");
         embed.setColor(EMBED_COLOR);
         if(args.length < 1) {
             embed.setDescription("Below is a list of commands.\n\nFor help with a specific command, type `mc?help [command name]`\n(e.g. `mc?help info` or `mc?help mc?status`).");
             for(let cmdName in COMMANDS) {
+                // skip if admin command and user isn't an admin
+                if(COMMAND_HELP[cmdName].admin && !wizardOps.msg.member.hasPermission("ADMINISTRATOR")) {
+                    continue;
+                }
                 embed.addField(cmdName, COMMAND_HELP[cmdName].message, false);
             }
         } else {
@@ -26,6 +30,7 @@ const COMMANDS = {
                 search = "mc?" + search;
             }
             if(typeof COMMANDS[search] === "function") {
+                // create embed info for command
                 let description = COMMAND_HELP[search].message + "\n\n**Usage**\n`" + search;
                 if(COMMAND_HELP[search].args) {
                     let argsNames = Object.keys(COMMAND_HELP[search].args);
