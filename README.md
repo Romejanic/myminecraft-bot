@@ -6,6 +6,8 @@ A Discord bot for checking statuses of personal Minecraft servers.
 
 [Support Server](https://discord.gg/x3AtYWtKp6)
 
+[top.gg page](https://top.gg/bot/793150744533925888)
+
 ## Bug Reports
 If you encounter any bugs when using this bot, or you have a suggestion for a new feature or fix, please submit a [new issue](https://github.com/Romejanic/myminecraft-bot/issues/new/choose) on Github, or join the support server and report it in the `#bug-reports` channel.
 
