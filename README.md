@@ -33,6 +33,7 @@ You will need:
 ```sh
 $ git clone https://github.com/Romejanic/myminecraft-bot.git
 $ cd myminecraft-bot
+$ npm install        # download dependencies
 $ npm run start      # generate config
 $ nano config.json   # add discord token and mysql login
 $ npm run start      # start bot
