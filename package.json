@@ -11,7 +11,7 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "nodemon src/index.js",
-        "async": "nohup npm run start > output.log &"
+        "async": "export NODE_ENV=production && nohup npm run start > output.log &"
     },
     "repository": {
         "type": "git",
