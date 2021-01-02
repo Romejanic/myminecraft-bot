@@ -568,6 +568,36 @@ module.exports = {
             .setColor(EMBED_COLOR)
             .setThumbnail(ICON_LINK);
         channel.send(embed);
+    },
+
+    checkProxy: (msg, client, db, imgServer) => {
+        let channel = msg.channel;
+        let text = msg.content.trim();
+        if(text.startsWith("mc?proxy") && text.length > "mc?proxy".length) {
+            let jsonData = text.substring("mc?proxy".length).trim();
+            try {
+                let params = JSON.parse(jsonData);
+                if(typeof params !== "object" || !params.guild || !params.channel || !params.serverNo) {
+                    throw "Missing parameters or not an object";
+                }
+                let outChannel = client.guilds.resolve(params.guild).channels.resolve(params.channel);
+                if(outChannel) {
+                    COMMANDS["mc?status"]([ params.serverNo ], outChannel, db, imgServer).catch((err) => {
+                        console.error("Error running proxy command!", err);
+                    });
+                } else {
+                    throw "Invalid guild or channel id";
+                }
+            } catch(e) {
+                console.error(e);
+                if(!msg.author.bot) {
+                    channel.send(JSON.stringify({
+                        error: "Bad JSON string",
+                        exception: e.toString()
+                    }, null, 4));
+                }
+            }
+        }
     }
 
 };

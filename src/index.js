@@ -16,7 +16,8 @@ client.on("ready", () => {
 
 client.on("message", (msg) => {
     // make sure the author isn't a bot
-    if(msg.author.bot) {
+    if(msg.author.bot || msg.content.startsWith("mc?proxy")) {
+        commands.checkProxy(msg, client, db, imgServer);
         return;
     }
     // check the channel is valid
