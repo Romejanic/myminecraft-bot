@@ -36,6 +36,8 @@ client.on("message", (msg) => {
     }
 });
 
+client.on("guildCreate", commands.sendServerGreeting);
+
 // load config and login
 console.log("[Config] Checking for config file...");
 config.getConfig(async (c) => {

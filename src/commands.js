@@ -556,6 +556,18 @@ module.exports = {
             .setDescription(errorMessage)
             .setFooter("If this error persists, please contact the developer!");
         channel.send(embed);
+    },
+
+    sendServerGreeting: (guild) => {
+        let channel = guild.channels.cache.find(c => c.name.toLowerCase().indexOf("general") > -1 && c.type === "text");
+        if(!channel)
+            return; // no general channel, don't bother sending
+        let embed = new MessageEmbed()
+            .setTitle("Hello!")
+            .setDescription("Thank you for inviting me to your server!\n\nGet start adding your first server by typing `mc?add` and following the prompts.\nFor a full command list, type `mc?help`.")
+            .setColor(EMBED_COLOR)
+            .setThumbnail(ICON_LINK);
+        channel.send(embed);
     }
 
 };
