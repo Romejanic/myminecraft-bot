@@ -559,9 +559,14 @@ module.exports = {
     },
 
     sendServerGreeting: (guild) => {
-        let channel = guild.channels.cache.find(c => c.name.toLowerCase().indexOf("general") > -1 && c.type === "text");
-        if(!channel)
-            return; // no general channel, don't bother sending
+        // try to send to the system messages channel
+        let channel = guild.channels.resolve(guild.systemMessagesID);
+        if(!channel || !channel.permissionsFor(guild.client.user).has("SEND_MESSAGES")) {
+            // otherwise, try and find a general channel
+            channel = guild.channels.cache.find(c => c.name.toLowerCase().indexOf("general") > -1 && c.type === "text");
+            if(!channel || !channel.permissionsFor(guild.client.user).has("SEND_MESSAGES"))
+                return; // no general channel, don't bother sending
+        }
         let embed = new MessageEmbed()
             .setTitle("Hello!")
             .setDescription("Thank you for inviting me to your server!\n\nGet start adding your first server by typing `mc?add` and following the prompts.\nFor a full command list, type `mc?help`.")
