@@ -15,6 +15,8 @@ function createWizard(steps, startMessage, client, timeout = 60, onTimeout) {
     let state = { init: true };
     let userId = startMessage.author.id, channelId = startMessage.channel.id;
     let blockFlag = false;
+    
+    state.deleteMsgs = startMessage.channel.permissionsFor(startMessage.guild.me).has("MANAGE_MESSAGES");
 
     // define control functions
     let cancelFn;
@@ -30,9 +32,11 @@ function createWizard(steps, startMessage, client, timeout = 60, onTimeout) {
             cancelFn();
             return;
         }
-        // delete user's message
+        // delete user's message (if we have permission to do so)
         let m = { content: msg.content, guild: msg.guild.id };
-        await msg.delete();
+        if(state.deleteMsgs) {
+            await msg.delete();
+        }
         // pass it onto the next step
         blockFlag = true;
         let pass = await steps[currStep](m, state, cancelFn);

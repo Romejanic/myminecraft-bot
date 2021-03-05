@@ -244,8 +244,9 @@ const COMMANDS = {
                         .setDescription("Please enter a name for your server (max 30 characters)!")
                         .setFooter("This action will be cancelled if ignored for 1 minute.");
                     let m = await channel.send(state.embed);
-                    state.update = async () => {
-                        m.edit(state.embed);
+                    state.update = async (override) => {
+                        if(state.deleteMsgs || override) { await m.edit(state.embed); }
+                        else { m = await m.channel.send(state.embed); }
                     };
                 } else {
                     // validate input
@@ -302,7 +303,7 @@ const COMMANDS = {
                                 .addField("Player Count", data.players.online + " / " + data.players.max, true)
                                 .addField("Version", data.version.name, true)
                                 .setThumbnail(thumb);
-                    await state.update();
+                    await state.update(true);
                     return true;
                 } catch(e) {
                     cancel();
@@ -310,7 +311,7 @@ const COMMANDS = {
                                 .setTitle("Cannot validate!")
                                 .setDescription("Sorry, your server could not be validated!\nPlease ensure it is online and publicly accesible.")
                                 .setFooter("Please run `mc?add` again to restart the process.");
-                    await state.update();
+                    await state.update(true);
                 }
             },
             // step 4
@@ -339,7 +340,7 @@ const COMMANDS = {
                                     .setDescription(state.name + " has been added to your server list!")
                                     .addField("Server Number", String(serverCount))
                                     .setFooter("Type `mc?status " + serverCount + "` to view this server");
-                        await state.update();
+                        await state.update(true);
                         return true;
                     } catch(e) {
                         console.error(e);
@@ -347,7 +348,7 @@ const COMMANDS = {
                                     .setTitle("Error")
                                     .setDescription("An unexpected error occurred while saving your server! Please try again later.")
                                     .setFooter("If the issue persists, please submit a bug report!");
-                        await state.update();
+                        await state.update(true);
                     }
 
                 } else if(noIn) {
@@ -434,7 +435,11 @@ const COMMANDS = {
                     if(serverPing) {
                         embed.setThumbnail(await imgServer.getUrlFor(serverPing.favicon));
                     }
-                    await msg.edit(embed);
+                    let m = await msg.edit(embed);
+                    state.update = async (override) => {
+                        if(state.deleteMsgs || override) { await m.edit(embed); }
+                        else { m = await m.channel.send(embed); }
+                    };
                 } else {
                     let confirmIn = input.content.trim().toLowerCase();
                     let yesIn = confirmIn.startsWith("y");
@@ -443,14 +448,14 @@ const COMMANDS = {
                         embed.setTitle("Invalid input")
                             .setColor("#ff0000")
                             .setDescription("Please enter **either** 'yes' or 'no'.");
-                        await msg.edit(embed);
+                        await state.update();
                         return false;
                     } else if(yesIn) {
                         embed.setTitle("Please wait...")
                             .setColor("#ffff00")
                             .setDescription("Please wait while your changes are saved...")
                             .setFooter("");
-                        await msg.edit(embed);
+                        await state.update();
                         // save to database
                         try {
                             await db.deleteServer(channel.guild.id, serverData.id);
@@ -459,12 +464,12 @@ const COMMANDS = {
                                 .setDescription(serverData.name + " was removed from your server list!\nYou now have " + (serverCount-1) + " / 5 remaining server slots.")
                                 .setFooter("PLEASE NOTE some of your server numbers may have changed.");
                             embed.fields = [];
-                            await msg.edit(embed);
+                            await state.update(true);
                         } catch(e)  {
                             console.error(e);
                             embed.setTitle("Error")
                                 .setDescription("Something went wrong while removing your server!\n\nPlease try again later.");
-                            await msg.edit(embed);
+                            await state.update(true);
                         }
                         return true;
                     } else if(noIn) {
@@ -474,7 +479,7 @@ const COMMANDS = {
                             .setDescription("Removal of server " + serverData.name + " was cancelled.")
                             .setFooter("");
                         embed.fields = [];
-                        await msg.edit(embed);
+                        await state.update();
                     }
                 }
             }
