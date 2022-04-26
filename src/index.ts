@@ -18,7 +18,7 @@ client.on("ready", () => {
     console.log("[Bot] Login successful!");
     client.user.setPresence({
         status: "online",
-        activities: [{ name: "mc?help for commands", type: "PLAYING" }]
+        activities: [{ name: "/info for commands", type: "PLAYING" }]
     });
 });
 
