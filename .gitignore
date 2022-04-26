@@ -106,9 +106,7 @@ dist
 # Bot credentials
 config.json
 config.json.old
+/auth.json
 
 # Typescript build
 build/
-
-# Bot Authorisation File
-/auth.json

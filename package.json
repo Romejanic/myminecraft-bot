@@ -23,7 +23,7 @@
         "discord.js-slasher": "^0.3.3",
         "mc-chat-format": "^1.2.2",
         "minecraft-pinger": "^1.0.5",
-        "mysql": "^2.18.1",
+        "mysql2": "^2.3.3",
         "typescript": "^4.6.3"
     },
     "devDependencies": {

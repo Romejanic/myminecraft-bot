@@ -5,6 +5,10 @@ interface HashResponse {
     hash: string;
 };
 
+export interface ImageServer {
+    getUrlFor: (imageData: string) => Promise<string>;
+};
+
 export default function imgServer(config: Config) {
 
     return {
@@ -39,6 +43,6 @@ export default function imgServer(config: Config) {
             });
         }
 
-    };
+    } as ImageServer;
 
 };

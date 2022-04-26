@@ -2,12 +2,8 @@ import fs from "fs";
 const CONFIG_PATH = "config.json";
 
 export interface Config {
-    discord: {
-        _comment: string;
-        token: string;
-    },
     database: {
-        _comment: string;
+        _comment?: string;
         user: string;
         pass: string;
         host: string;
@@ -15,7 +11,7 @@ export interface Config {
         database: string;
     },
     imageServer: {
-        _comment: string;
+        _comment?: string;
         host: string;
         secret: string;
     }
@@ -23,10 +19,6 @@ export interface Config {
 
 function defaultConfig() {
     return JSON.stringify({
-        discord: {
-            _comment: "Enter your bot token from your Discord developer application.",
-            token: "ENTER-YOUR-TOKEN-HERE"
-        },
         database: {
             _comment: "Enter your database login credentials. You should have the appropriate database set up already.",
             user: "ENTER-YOUR-USERNAME",
@@ -44,16 +36,13 @@ function defaultConfig() {
 }
 
 function checkIntegrity(config: Config) {
-    if(typeof config !== "object" || !config.discord || !config.database || !config.imageServer)
+    if(typeof config !== "object" || !config.database || !config.imageServer)
         return false;
-    let discordExp = ["token"];
     let databaseExp = ["user","pass","host","port","database"];
     let imgServerExp = ["host","secret"];
-    let discordKeys = Object.keys(config.discord).sort();
     let databaseKeys = Object.keys(config.database).sort();
     let imgServerKeys = Object.keys(config.imageServer).sort();
-    return discordExp.every(v => discordKeys.includes(v))
-        && databaseExp.every(v => databaseKeys.includes(v))
+    return databaseExp.every(v => databaseKeys.includes(v))
         && imgServerExp.every(v => imgServerKeys.includes(v));
 }
 

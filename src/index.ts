@@ -1,10 +1,18 @@
-import { Client } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
+import { SlasherClient } from 'discord.js-slasher';
 import config from './conf';
+import initDatabase, { Database } from './db';
+import initImageServer, { ImageServer } from './img-api';
 // import commands from './commands';
 
-let db = require("./db");
-let imgServer = require("./img-api");
-let client = new Client({ intents: ['GUILDS'] });
+const client = new SlasherClient({
+    useAuth: true,
+    intents: ['GUILDS', 'GUILD_MESSAGES']
+});
+const state: AppState = {
+    db: null,
+    imgServer: null
+};
 
 client.on("ready", () => {
     console.log("[Bot] Login successful!");
@@ -14,27 +22,23 @@ client.on("ready", () => {
     });
 });
 
-client.on("message", (msg) => {
-    // make sure the author isn't a bot
-    if(msg.author.bot || msg.content.startsWith("mc?proxy")) {
-        // commands.checkProxy(msg, client, db, imgServer);
+client.on("messageCreate", (msg) => {
+    // don't respond to self
+    if(msg.author.id === client.user.id) {
         return;
     }
-    // check the channel is valid
-    // if(!commands.isChannelValid(msg.channel)) {
-    //     commands.sendDmError(msg.channel);
-    //     return;
-    // }
-    // check if the prefix is matched
-    // let text = msg.content.trim();
-    // if(commands.matchPrefix(text)) {
-    //     let wizardsOps = { msg, client };
-    //     // pass the text off to be parsed as a command
-    //     commands.parse(text, msg, db, imgServer, wizardsOps).catch((e: Error) => {
-    //         console.error("Unexpected error while processing command!", e);
-    //         commands.sendError(msg.channel, "Sorry, something went wrong while performing that command!");
-    //     });
-    // }
+
+    // if the user tries to use the prefix, send the slash
+    // command message instead
+    if(msg.content.startsWith("mc?")) {
+        const embed = new MessageEmbed()
+            .setColor("RED")
+            .setTitle("Use slash commands")
+            .setDescription("MyMinecraft has switched to slash commands in line with Discord's new features. Please type `/info` for help.");
+        msg.reply({
+            embeds: [embed]
+        });
+    }
 });
 
 // client.on("guildCreate", commands.sendServerGreeting);
@@ -42,7 +46,12 @@ client.on("message", (msg) => {
 // load config and login
 console.log("[Config] Checking for config file...");
 config.getConfig(async (c) => {
-    db = db(c); // pass config to database
-    imgServer = imgServer(c); // pass config to img api
-    client.login(c.discord.token);
+    state.db = initDatabase(c); // pass config to database
+    state.imgServer = initImageServer(c); // pass config to img api
+    client.login();
 });
+
+interface AppState {
+    db?: Database;
+    imgServer?: ImageServer;
+};
