@@ -3,7 +3,7 @@ import { SlasherClient } from 'discord.js-slasher';
 import config from './conf';
 import initDatabase, { Database } from './db';
 import initImageServer, { ImageServer } from './img-api';
-// import commands from './commands';
+import commands from './commands/manager';
 
 const client = new SlasherClient({
     useAuth: true,
@@ -41,6 +41,7 @@ client.on("messageCreate", (msg) => {
     }
 });
 
+client.on("command", commands.run);
 // client.on("guildCreate", commands.sendServerGreeting);
 
 // load config and login
