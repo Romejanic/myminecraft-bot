@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "outDir": "build",
+        "rootDir": "src",
+        "target": "ES5",
+        "strict": false,
+        "esModuleInterop": true,
+        "moduleResolution": "node"
+    }
+}
