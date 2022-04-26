@@ -7,7 +7,6 @@ const EMBED_COLOR = "#4e7a39";
 
 const InfoCommand: Command = async (ctx) => {
     // gather data for command
-    const version = process.env.npm_package_version;
     const mem = process.memoryUsage();
     const links = [
         `[Invite me to your server!](${INVITE_LINK})`,
@@ -22,7 +21,7 @@ const InfoCommand: Command = async (ctx) => {
         .setDescription("A clean and simple way to check the statuses of Minecraft servers.\n\n" + links.join("\n"))
         .setThumbnail(ICON_LINK)
         .setFooter({ text: "Created with ❤️ by @memedealer#6607" })
-        .addField("Version", version, true)
+        .addField("Version", process.env.npm_package_version, true)
         .addField("Node Version", process.version, true)
         .addField("Operating System", process.platform, true)
         .addField("Memory Usage", (100 * mem.heapUsed / mem.heapTotal).toFixed(1) + "%", true)
