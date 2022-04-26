@@ -4,11 +4,13 @@ import { CommandContext } from "discord.js-slasher";
 // command handlers
 import InfoCommand from "./info";
 import ListCommand from "./list";
+import AddCommand from "./add";
 
 const CommandManagerImpl: CommandManager = {
     commands: {
         "info": InfoCommand,
-        "list": ListCommand
+        "list": ListCommand,
+        "add": AddCommand
     },
     
     run: async (ctx) => {

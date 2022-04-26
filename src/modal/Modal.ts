@@ -1,5 +1,4 @@
 import { CommandInteraction, Interaction } from "discord.js";
-import { REST } from '@discordjs/rest';
 import { CommandContext } from "discord.js-slasher";
 import { Routes } from 'discord-api-types/v8';
 import TextInput from "./TextInput";
@@ -11,7 +10,7 @@ export default class Modal {
 
     private title: string;
     private customId: string;
-    private fields: TextInput[][];
+    private fields: TextInput[][] = [];
 
     private interaction: Interaction;
 
@@ -36,15 +35,18 @@ export default class Modal {
 
     public async show() {
         const { id, token } = this.interaction;
-        const rest = new REST();
-        await rest.post(Routes.interactionCallback(id, token), {
-            body: {
+        const url = "https://discord.com/api/v8" + Routes.interactionCallback(id, token);
+        const resp = await fetch(url, {
+            method: "POST",
+            body: JSON.stringify({
                 type: MODAL_RESPONSE_TYPE,
                 data: this.toJSON()
-            },
-            auth: false
+            }),
+            headers: {
+                'Content-Type': "application/json"
+            }
         });
-        if(this.interaction.isCommand()) {
+        if(resp.ok && this.interaction.isCommand()) {
             (this.interaction as CommandInteraction).replied = true;
         }
     }
