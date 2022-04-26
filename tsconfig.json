@@ -5,6 +5,7 @@
         "target": "ES5",
         "strict": false,
         "esModuleInterop": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "resolveJsonModule": true
     }
 }

@@ -1,13 +1,11 @@
-const { MessageEmbed } = require("discord.js");
-const Pinger = require("minecraft-pinger");
-const ChatFormat = require("mc-chat-format");
-const Wizard = require("./wizard");
+import { MessageEmbed } from "discord.js";
+import Pinger from "minecraft-pinger";
+import ChatFormat from "mc-chat-format";
 
 const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=60480&scope=bot";
 const ICON_LINK   = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/2/26/Block_of_Redstone_JE2_BE2.png/revision/latest/scale-to-width-down/300?cb=20191230030530";
 const EMBED_COLOR = "#4e7a39";
 const LOAD_COLOR  = "#ffff00";
-const COMMAND_HELP = require("../command-help.json");
 
 const COMMANDS = {
 
@@ -19,10 +17,11 @@ const COMMANDS = {
             embed.setDescription("Below is a list of commands.\n\nFor help with a specific command, type `mc?help [command name]`\n(e.g. `mc?help info` or `mc?help mc?status`).");
             for(let cmdName in COMMANDS) {
                 // skip if admin command and user isn't an admin
-                if(COMMAND_HELP[cmdName].admin && !wizardOps.msg.member.hasPermission("ADMINISTRATOR")) {
-                    continue;
-                }
-                embed.addField(cmdName, COMMAND_HELP[cmdName].message, false);
+                // TODO: this is all being rewritten as slash commands anyway
+                // if(COMMAND_HELP[cmdName].admin && !wizardOps.msg.member.hasPermission("ADMINISTRATOR")) {
+                //     continue;
+                // }
+                // embed.addField(cmdName, COMMAND_HELP[cmdName].message, false);
             }
         } else {
             let search = args[0].toLowerCase();

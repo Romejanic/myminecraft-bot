@@ -1,10 +1,15 @@
-const https = require("https");
+import https from "https";
+import { Config } from "./conf";
 
-module.exports = (config) => {
+interface HashResponse {
+    hash: string;
+};
+
+export default function imgServer(config: Config) {
 
     return {
 
-        getUrlFor: (imageData) => {
+        getUrlFor: (imageData: string) => {
             return new Promise((resolve, reject) => {
                 let req = https.request({ 
                     hostname: config.imageServer.host,
@@ -15,16 +20,16 @@ module.exports = (config) => {
                         "X-Secret": config.imageServer.secret
                     }
                 }, (res) => {
-                    let hash = "";
+                    let hash: string = "";
                     res.on("data", (d) => {
                         hash += d.toString();
                     });
                     res.on("end", () => {
-                        hash = JSON.parse(hash);
+                        hash = (JSON.parse(hash) as HashResponse).hash;
                         if(res.statusCode !== 200) {
                             reject(hash);
                         } else {
-                            resolve(`https://${config.imageServer.host}/${hash.hash}`);
+                            resolve(`https://${config.imageServer.host}/${hash}`);
                         }
                     });
                 });

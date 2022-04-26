@@ -1,6 +1,8 @@
-const mysql = require("mysql");
+import { Config } from "./conf";
+import mysql from "mysql";
+import { GuildResolvable } from "discord.js";
 
-module.exports = function(config) {
+export default function Database(config: Config) {
 
     const pool = mysql.createPool({
         user: config.database.user,
@@ -10,13 +12,13 @@ module.exports = function(config) {
         database: config.database.database
     });
 
-    pool.on("error", (err) => {
+    pool.on("error", (err: Error) => {
         console.error("Unexpected database error:", err);
     });
 
     return {
 
-        getServers: (guildId) => {
+        getServers: (guildId: GuildResolvable) => {
             return new Promise((resolve, reject) => {
                 pool.query("SELECT name, ip FROM servers WHERE guild = ?", [ guildId ], (err, results) => {
                     if(err) reject(err);
@@ -25,7 +27,7 @@ module.exports = function(config) {
             });
         },
 
-        getServer: (guildId, idx) => {
+        getServer: (guildId: GuildResolvable, idx: number) => {
             return new Promise((resolve, reject) => {
                 pool.query("SELECT name,ip,id FROM servers WHERE guild = ? LIMIT ?,1", [ guildId, idx ], (err, results) => {
                     if(err) reject(err);
@@ -35,7 +37,7 @@ module.exports = function(config) {
             });
         },
 
-        getServerCount: (guildId) => {
+        getServerCount: (guildId: GuildResolvable) => {
             return new Promise((resolve, reject) => {
                 pool.query("SELECT COUNT(name) n FROM servers WHERE guild = ?", [ guildId ], (err, results) => {
                     if(err) reject(err);
@@ -45,7 +47,7 @@ module.exports = function(config) {
             });
         },
 
-        newServer: (guildId, name, ip) => {
+        newServer: (guildId: GuildResolvable, name: string, ip: string): Promise<string | void> => {
             return new Promise((resolve, reject) => {
                 pool.query("INSERT INTO servers (guild, name, ip) VALUES (?,?,?)", [ guildId, name, ip ], (err, results) => {
                     if(err) reject(err);
@@ -55,7 +57,7 @@ module.exports = function(config) {
             });
         },
 
-        deleteServer: (guildId, id) => {
+        deleteServer: (guildId: GuildResolvable, id: string): Promise<string | void> => {
             return new Promise((resolve, reject) => {
                 pool.query("DELETE FROM servers WHERE guild = ? AND id = ?", [ guildId, id ], (err, results) => {
                     if(err) reject(err);

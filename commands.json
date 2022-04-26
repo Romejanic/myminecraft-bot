@@ -1,0 +1,32 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Romejanic/slasher/master/schema.json",
+
+    "status": {
+        "description": "Checks the status of a server",
+        "options": {
+            "check": {
+                "description": "Which type of server to check",
+                "choices": {
+                    "All servers": "all",
+                    "Single server": "single"
+                }
+            }
+        }
+    },
+
+    "list": {
+        "description": "Lists your saved servers"
+    },
+
+    "add": {
+        "description": "Adds a new saved server"
+    },
+
+    "remove": {
+        "description": "Removes a saved server"
+    },
+
+    "info": {
+        "description": "Gets information about the bot and commands"
+    }
+}

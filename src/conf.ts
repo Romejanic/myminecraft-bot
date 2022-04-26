@@ -1,5 +1,25 @@
-const fs = require("fs");
+import fs from "fs";
 const CONFIG_PATH = "config.json";
+
+export interface Config {
+    discord: {
+        _comment: string;
+        token: string;
+    },
+    database: {
+        _comment: string;
+        user: string;
+        pass: string;
+        host: string;
+        port: number;
+        database: string;
+    },
+    imageServer: {
+        _comment: string;
+        host: string;
+        secret: string;
+    }
+};
 
 function defaultConfig() {
     return JSON.stringify({
@@ -23,7 +43,7 @@ function defaultConfig() {
     }, null, 4);
 }
 
-function checkIntegrity(config) {
+function checkIntegrity(config: Config) {
     if(typeof config !== "object" || !config.discord || !config.database || !config.imageServer)
         return false;
     let discordExp = ["token"];
@@ -37,9 +57,11 @@ function checkIntegrity(config) {
         && imgServerExp.every(v => imgServerKeys.includes(v));
 }
 
-module.exports = {
+type ConfigCallback = (config: Config) => void;
 
-    getConfig: (cb) => {
+const ConfigExport = {
+
+    getConfig: (cb: ConfigCallback) => {
         if(!fs.existsSync(CONFIG_PATH)) {
             // generate a default config file
             fs.writeFileSync(CONFIG_PATH, defaultConfig());
@@ -65,3 +87,5 @@ module.exports = {
     }
 
 };
+
+export default ConfigExport;
