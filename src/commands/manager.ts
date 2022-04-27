@@ -1,11 +1,12 @@
 import { MessageEmbed } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
+import { Database } from "../db";
+import { SUPPORT_SERVER } from "../const";
 
 // command handlers
 import InfoCommand from "./info";
 import ListCommand from "./list";
 import AddCommand from "./add";
-import { Database } from "../db";
 
 const CommandManagerImpl: CommandManager = {
     commands: {
@@ -26,7 +27,7 @@ const CommandManagerImpl: CommandManager = {
                 const embed = new MessageEmbed()
                     .setColor("RED")
                     .setTitle("Error while running command")
-                    .setDescription(`Something went wrong while running \`/${ctx.name}\`!\n\nContact [support]() if the issue persists.`);
+                    .setDescription(`Something went wrong while running \`/${ctx.name}\`!\n\nContact [support](${SUPPORT_SERVER}) if the issue persists.`);
                 if(ctx.command.replied) await ctx.edit(embed);
                 else await ctx.reply(embed, true);
             }
