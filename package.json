@@ -19,15 +19,13 @@
         "url": "https://github.com/Romejanic/myminecraft-bot.git"
     },
     "dependencies": {
+        "axios": "^0.27.1",
         "discord.js": "^13.6.0",
         "discord.js-slasher": "^0.3.3",
         "mc-chat-format": "^1.2.2",
         "minecraft-pinger": "^1.0.5",
         "mysql2": "^2.3.3",
-        "node-fetch": "^3.2.3",
-        "typescript": "^4.6.3"
-    },
-    "devDependencies": {
-        "nodemon": "^2.0.15"
+        "typescript": "^4.6.3",
+        "typed-emitter": "^2.1.0"
     }
 }

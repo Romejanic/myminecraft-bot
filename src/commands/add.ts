@@ -19,7 +19,13 @@ const AddCommand: Command = async (ctx) => {
             .setCustomID("mymc_server_ip")
             .setStyle(TextInputStyle.Short)
             .setRequired(true)]);
-    await modal.show();
+    const result = await modal.showAndWait();
+
+    if(result.submitted) {
+        await ctx.command.followUp(`Server name: ${result.values["mymc_server_name"]}\nServer IP: ${result.values["mymc_server_ip"]}`);
+    } else {
+        await ctx.command.followUp("You didn't respond");
+    }
 };
 
 export default AddCommand;
