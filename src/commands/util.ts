@@ -9,6 +9,10 @@ const Util = {
             .setTitle("Permission needed")
             .setDescription("Sorry, you don't have permission to use this command.\nOnly Administrators can use this command.");
         await ctx.reply(embed, true);
+    },
+
+    attachEncodedImage: (image: string) => {
+        const preamble = "";
     }
 
 };
