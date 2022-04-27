@@ -1,18 +1,16 @@
 import { MessageEmbed } from "discord.js";
 import { Command } from "./manager";
 
-const INVITE_LINK = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=3072&scope=bot%20applications.commands";
-const ICON_LINK   = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/2/26/Block_of_Redstone_JE2_BE2.png/revision/latest/scale-to-width-down/300?cb=20191230030530";
-const EMBED_COLOR = "#4e7a39";
+import { EMBED_COLOR, ICON_LINK, INVITE_LINK, BUG_REPORTS, GITHUB_LINK, SUPPORT_SERVER } from '../const';
 
 const InfoCommand: Command = async (ctx) => {
     // gather data for command
     const mem = process.memoryUsage();
     const links = [
         `[Invite me to your server!](${INVITE_LINK})`,
-        `[Submit a bug report or feature request](https://github.com/Romejanic/myminecraft-bot/issues/new/choose)`,
-        `[Check out on Github!](https://github.com/Romejanic/myminecraft-bot)`,
-        `[Join the support server!](https://discord.gg/fawJ2dTxFS)`
+        `[Submit a bug report or feature request](${BUG_REPORTS})`,
+        `[Check out on Github!](${GITHUB_LINK})`,
+        `[Join the support server!](${SUPPORT_SERVER})`
     ];
     // create and send embed
     const embed = new MessageEmbed()

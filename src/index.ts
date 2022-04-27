@@ -41,7 +41,7 @@ client.on("messageCreate", (msg) => {
     }
 });
 
-client.on("command", commands.run);
+client.on("command", ctx => commands.run(ctx, state.db));
 // client.on("guildCreate", commands.sendServerGreeting);
 
 // load config and login

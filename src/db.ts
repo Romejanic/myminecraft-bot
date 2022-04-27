@@ -1,7 +1,6 @@
 import { Config } from "./conf";
 import mysql, { OkPacket, RowDataPacket } from "mysql2";
 import { GuildResolvable } from "discord.js";
-import { Data } from "ws";
 
 export interface ServerInfo {
     name: string;
@@ -10,7 +9,7 @@ export interface ServerInfo {
 };
 
 export interface Database {
-    getServers: (guildId: GuildResolvable) => Promise<ServerInfo>;
+    getServers: (guildId: GuildResolvable) => Promise<ServerInfo[]>;
     getServer: (guildId: GuildResolvable) => Promise<ServerInfo>;
     getServerCount: (guildId: GuildResolvable) => Promise<number>;
     newServer: (guildId: GuildResolvable, name: string, ip: string) => Promise<void>;
@@ -29,15 +28,17 @@ export default function initDatabase(config: Config) {
 
     return {
 
-        getServers: (guildId: GuildResolvable): Promise<ServerInfo> => {
+        getServers: (guildId: GuildResolvable): Promise<ServerInfo[]> => {
             return new Promise((resolve, reject) => {
                 pool.query("SELECT name, ip FROM servers WHERE guild = ?", [ guildId ], (err, results) => {
                     if(err) reject(err);
-                    const row = results[0] as RowDataPacket;
-                    resolve({
-                        name: row["name"],
-                        ip: row["ip"]
-                    });
+                    const rows = results as RowDataPacket[];
+                    resolve(rows.map(row => {
+                        return {
+                            name: row["name"],
+                            ip: row["ip"]
+                        };
+                    }));
                 });
             });
         },
@@ -57,8 +58,9 @@ export default function initDatabase(config: Config) {
             return new Promise((resolve, reject) => {
                 pool.query("SELECT COUNT(name) n FROM servers WHERE guild = ?", [ guildId ], (err, results) => {
                     if(err) reject(err);
-                    if(!results || (results as RowDataPacket[]).length < 1) reject("Could not get server count");
-                    resolve(results[0]["n"] as number);
+                    const rows = results as RowDataPacket[];
+                    if(!results || rows.length < 1) reject("Could not get server count");
+                    resolve(rows[0]["n"] as number);
                 });
             });
         },

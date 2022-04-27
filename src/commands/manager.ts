@@ -5,6 +5,7 @@ import { CommandContext } from "discord.js-slasher";
 import InfoCommand from "./info";
 import ListCommand from "./list";
 import AddCommand from "./add";
+import { Database } from "../db";
 
 const CommandManagerImpl: CommandManager = {
     commands: {
@@ -13,12 +14,12 @@ const CommandManagerImpl: CommandManager = {
         "add": AddCommand
     },
     
-    run: async (ctx) => {
+    run: async (ctx, db) => {
         const { commands } = CommandManagerImpl;
         if(commands[ctx.name]) {
             try {
                 // run the requested command
-                await commands[ctx.name](ctx);
+                await commands[ctx.name](ctx, db);
             } catch(e) {
                 console.error("[Command] Error running command:", e);
                 // show user an error message
@@ -34,9 +35,9 @@ const CommandManagerImpl: CommandManager = {
 };
 
 export default CommandManagerImpl;
-export type Command = (ctx: CommandContext) => Promise<void>;
+export type Command = (ctx: CommandContext, db?: Database) => Promise<any>;
 
 interface CommandManager {
     commands: { [name: string]: Command };
-    run: (ctx: CommandContext) => Promise<void>;
+    run: (ctx: CommandContext, db: Database) => Promise<void>;
 };
