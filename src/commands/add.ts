@@ -1,10 +1,10 @@
 import { Message, MessageEmbed } from "discord.js";
-import Pinger, { ping } from 'minecraft-pinger';
+import Pinger from 'minecraft-pinger';
 import ChatFormat from 'mc-chat-format';
-import Modal from "../modal/Modal";
-import TextInput, { TextInputStyle } from "../modal/TextInput";
 import { Command } from "./manager";
 import Util from "./util";
+import { Modal, TextInputComponent, showModal } from "discord-modals";
+import createModalSubmitCollector from "../modal/modalCollector";
 
 const AddCommand: Command = async (ctx, db) => {
     // check the user has permission to do this
@@ -21,41 +21,48 @@ const AddCommand: Command = async (ctx, db) => {
     }
 
     // open modal to enter name and IP address
-    const modal = new Modal(ctx)
+    const modal = new Modal()
         .setTitle("Add server")
-        .setCustomID("mymc_add_server")
-        .addRows([new TextInput()
+        .setCustomId("mymc_add_server")
+        .addComponents(
+        new TextInputComponent()
             .setLabel("Server Name")
             .setPlaceholder("e.g. Hypixel")
-            .setCustomID("mymc_server_name")
-            .setStyle(TextInputStyle.Short)
+            .setCustomId("mymc_server_name")
+            .setStyle("SHORT")
             .setRequired(true)
             .setMinLength(1)
-            .setMaxLength(30)])
-        .addRows([new TextInput()
+            .setMaxLength(30),
+        new TextInputComponent()
             .setLabel("Server IP")
             .setPlaceholder("e.g. hypixel.net")
-            .setCustomID("mymc_server_ip")
-            .setStyle(TextInputStyle.Short)
+            .setCustomId("mymc_server_ip")
+            .setStyle("SHORT")
             .setRequired(true)
             .setMinLength(1)
-            .setMaxLength(255)]);
-    const result = await modal.showAndWait();
+            .setMaxLength(255));
 
-    if(result.submitted) {
+    // show modal and make a collector to wait for responses
+    showModal(modal, { client: ctx.client, interaction: ctx.command });
+    const collector = createModalSubmitCollector(ctx, modal);
+    
+    // on the modal submission
+    collector.on("submit", async (i) => {
         const embed = new MessageEmbed()
             .setColor("YELLOW")
             .setTitle("Pinging...")
             .setDescription("Pinging your Minecraft server now, please wait...");
-        const msg = await ctx.command.followUp({
+
+        await i.reply({
             embeds: [embed],
             ephemeral: true
-        }) as Message;
-        
+        });
+        const msg = await i.fetchReply();
+
         // try to ping the server
         try {
-            const name         = result.values["mymc_server_name"];
-            const { ip, port } = parseIpString(result.values["mymc_server_ip"]);
+            const name         = i.getTextInputValue("mymc_server_name");
+            const { ip, port } = parseIpString(i.getTextInputValue("mymc_server_ip"));
             const pingData     = await Pinger.pingPromise(ip, port);
 
             // get the server's MOTD
@@ -64,13 +71,15 @@ const AddCommand: Command = async (ctx, db) => {
                 motd = ChatFormat.format(convertTextComponent(pingData)).split("\n").map(s => s.trim()).join("\n");
             }
 
-            console.log(pingData.favicon);
+            const icon = Util.attachEncodedImage(pingData.favicon);
             embed
                 .setTitle("Confirmation")
                 .setDescription("Please confirm that you would like to add this server\n\n**Description**\n```" + motd + "```")
-                .addField("Chosen Name", name);
+                .addField("Chosen Name", name)
+                .setThumbnail("attachment://favicon.png");
             await msg.edit({
-                embeds: [embed]
+                embeds: [embed],
+                files: [icon]
             });
         } catch(e) {
             // ping failed, tell the user
@@ -82,7 +91,7 @@ const AddCommand: Command = async (ctx, db) => {
                 embeds: [embed]
             });
         }
-    }
+    });
 };
 
 function parseIpString(ip: string) {

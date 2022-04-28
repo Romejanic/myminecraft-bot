@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { MessageAttachment, MessageEmbed } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 
 const Util = {
@@ -12,7 +12,12 @@ const Util = {
     },
 
     attachEncodedImage: (image: string) => {
-        const preamble = "";
+        const preamble = "data:image/png;base64,";
+        if(image.startsWith(preamble)) {
+            image = image.substring(preamble.length);
+        }
+        const buffer = Buffer.from(image, 'base64');
+        return new MessageAttachment(buffer, "favicon.png");
     }
 
 };

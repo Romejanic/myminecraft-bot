@@ -4,6 +4,7 @@ import config from './conf';
 import initDatabase, { Database } from './db';
 import initImageServer, { ImageServer } from './img-api';
 import commands from './commands/manager';
+import discordModals from 'discord-modals';
 
 const client = new SlasherClient({
     useAuth: true,
@@ -49,6 +50,7 @@ console.log("[Config] Checking for config file...");
 config.getConfig(async (c) => {
     state.db = initDatabase(c); // pass config to database
     state.imgServer = initImageServer(c); // pass config to img api
+    discordModals(client);
     client.login();
 });
 

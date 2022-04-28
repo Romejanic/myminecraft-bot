@@ -1,15 +1,15 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import { Client, CommandInteraction, Interaction } from "discord.js";
+import { Client, CommandInteraction, Interaction, InteractionReplyOptions, InteractionWebhook, Message } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
-import { Routes } from 'discord-api-types/v8';
+import { APIMessage, Routes } from 'discord-api-types/v9';
 import axios from 'axios';
 import TextInput from "./TextInput";
+import { InteractionResponseTypes } from 'discord.js/typings/enums';
 
 const ACTION_ROW_TYPE = 1;
 const MODAL_RESPONSE_TYPE = 9;
 const MODAL_SUBMIT_TYPE = 5;
-const DEFERRED_UPDATE_MESSAGE = 6;
 
 type ModalEvents = {
     submit: (result: ModalResult) => void;
@@ -52,6 +52,7 @@ export default class Modal {
     private readonly client: Client;
 
     private readonly emitter: TypedEmitter<ModalEvents>;
+    private submitInteraction: ModalSubmitInteraction;
 
     constructor(ctx: CommandContext) {
         this.interaction = ctx.command;
@@ -76,7 +77,7 @@ export default class Modal {
 
     public async show() {
         const { id, token } = this.interaction;
-        const url = "https://discord.com/api/v8" + Routes.interactionCallback(id, token);
+        const url = "https://discord.com/api/v9" + Routes.interactionCallback(id, token);
         await axios.post(url, {
             type: MODAL_RESPONSE_TYPE,
             data: this.toJSON()
@@ -84,13 +85,6 @@ export default class Modal {
         if(this.interaction.isCommand()) {
             (this.interaction as CommandInteraction).replied = true;
         }
-
-        const closeModal = (i: ModalSubmitInteraction) => {
-            const url = "https://discord.com/api/v8" + Routes.interactionCallback(i.id, i.token);
-            axios.post(url, {
-                type: DEFERRED_UPDATE_MESSAGE
-            }).catch(console.error);
-        };
 
         const submitListener = (i: ModalSubmitInteraction) => {
             if(i.type === MODAL_SUBMIT_TYPE && i.data.custom_id === this.customId) {
@@ -104,7 +98,7 @@ export default class Modal {
                     submitted: true, values
                 });
                 clearTimeout(timeout);
-                closeModal(i);
+                this.submitInteraction = i;
                 this.client.ws.off("INTERACTION_CREATE", submitListener);
             }
         };
@@ -124,6 +118,20 @@ export default class Modal {
     public async showAndWait() {
         await this.show();
         return await this.result();
+    }
+
+    public async reply(data: InteractionReplyOptions): Promise<APIMessage | Message<boolean>> {
+        if(!this.submitInteraction) {
+            throw "Cannot reply until the modal is submitted";
+        }
+        const { id, token } = this.submitInteraction;
+        const url = "https://discord.com/api/v9" + Routes.interactionCallback(id, token);
+        await axios.post(url, {
+            type: InteractionResponseTypes.CHANNEL_MESSAGE_WITH_SOURCE, data
+        });
+        return null;
+        // const webhook = new InteractionWebhook(this.client, this.client.application.id, this.interaction.token);
+        // return await webhook.fetchMessage("@original");
     }
 
     public toJSON() {
