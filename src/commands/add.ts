@@ -5,6 +5,7 @@ import { Command } from "./manager";
 import Util from "./util";
 import { Modal, TextInputComponent, showModal } from "discord-modals";
 import createModalSubmitCollector from "../modal/modalCollector";
+import { SUPPORT_SERVER } from "../const";
 
 const AddCommand: Command = async (ctx, db) => {
     // check the user has permission to do this
@@ -95,14 +96,79 @@ const AddCommand: Command = async (ctx, db) => {
                 components: [confirmBtn, cancelBtn]
             });
 
+            // edit message and show confirmation
             await msg.edit({
                 embeds: [embed],
                 files: [icon],
                 components: [buttons]
             });
-        } catch(e) {
-            console.error("[Command] Ping failed:", e);
 
+            // listen for button presses
+            const buttonCollector = msg.createMessageComponentCollector({
+                filter: i => buttons.components.some(b => b.customId === i.customId),
+                time: 10 * 60 * 1000 // 10 minutes
+            });
+
+            buttonCollector.on("collect", async i => {
+                // only allow the requesting user to respond
+                if(i.user.id !== ctx.user.id) {
+                    const embed = new MessageEmbed()
+                        .setColor("RED")
+                        .setTitle("Not your request")
+                        .setDescription("You did not make this request!");
+                    return await i.reply({
+                        embeds: [embed],
+                        ephemeral: true
+                    });
+                }
+
+                if(i.customId === confirmBtn.customId) {
+                    try {
+                        await db.newServer(ctx.server.id, name, `${ip}:${port}`);
+                        
+                        // send confirmation message
+                        embed.setColor("GREEN")
+                            .setTitle("Success")
+                            .setDescription(`${name} has been added to your saved server list.`)
+                            .setFields([]);
+                        await i.update({
+                            embeds: [embed],
+                            files: [icon],
+                            components: []
+                        });
+                    } catch(e) {
+                        console.error("[/add] Failed to add server:", e);
+                        // send error message
+                        embed.setColor("RED")
+                            .setTitle("Error")
+                            .setDescription(`An unexpected error ocurred while adding ${name} to your server list.\n\nPlease [contact support](${SUPPORT_SERVER}) if the error persists.`)
+                            .setFields([]);
+                        await i.update({
+                            embeds: [embed],
+                            files: [icon],
+                            components: []
+                        });
+                    }
+                }
+
+                else if(i.customId === cancelBtn.customId) {
+                    // send cancellation message
+                    embed.setColor("RED")
+                    .setTitle("Cancelled")
+                    .setDescription(`You did not add ${name} to your server list.\n\nType \`/add\` again if you'd like to restart.`)
+                    .setFields([]);
+                    await i.update({
+                        embeds: [embed],
+                        files: [icon],
+                        components: []
+                    });
+                }
+            });
+
+            buttonCollector.on("end", () => {
+
+            });
+        } catch(e) {
             // ping failed, tell the user
             const embed = new MessageEmbed()
                 .setColor("RED")
