@@ -1,6 +1,6 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import Pinger from 'minecraft-pinger';
-import ChatFormat from 'mc-chat-format';
+import { format, Component } from 'mc-chat-format';
 import { Command } from "./manager";
 import Util from "./util";
 import { Modal, TextInputComponent, showModal } from "discord-modals";
@@ -68,20 +68,41 @@ const AddCommand: Command = async (ctx, db) => {
             // get the server's MOTD
             let motd = "No description provided";
             if(pingData.description) {
-                motd = ChatFormat.format(convertTextComponent(pingData)).split("\n").map(s => s.trim()).join("\n");
+                motd = format(convertTextComponent(pingData)).split("\n").map(s => s.trim()).join("\n");
             }
 
+            // get icon and create embed
             const icon = Util.attachEncodedImage(pingData.favicon);
             embed
                 .setTitle("Confirmation")
                 .setDescription("Please confirm that you would like to add this server\n\n**Description**\n```" + motd + "```")
                 .addField("Chosen Name", name)
                 .setThumbnail("attachment://favicon.png");
+
+            // create confirm buttons
+            const confirmBtn = new MessageButton({
+                customId: "mymc_add_confirm",
+                label: "Confirm",
+                style: "SUCCESS"
+            });
+            const cancelBtn = new MessageButton({
+                customId: "mymc_add_cancel",
+                label: "Cancel",
+                style: "DANGER"
+            });
+
+            const buttons = new MessageActionRow({
+                components: [confirmBtn, cancelBtn]
+            });
+
             await msg.edit({
                 embeds: [embed],
-                files: [icon]
+                files: [icon],
+                components: [buttons]
             });
         } catch(e) {
+            console.error("[Command] Ping failed:", e);
+
             // ping failed, tell the user
             const embed = new MessageEmbed()
                 .setColor("RED")
@@ -106,21 +127,10 @@ function parseIpString(ip: string) {
     return { ip, port };
 }
 
-function convertTextComponent(pingData: Pinger.Data): ChatFormat.Component {
-    // jesus christ typescript
-    return {
-        text: pingData.description.text,
-        extra: pingData.description.extra ? [{
-            text: pingData.description.extra.text,
-            color: pingData.description.extra.color,
-            bold: pingData.description.extra.bold,
-            strikethrough: pingData.description.extra.strikethrough,
-            extra: pingData.description.extra.extra ? [{
-                color: pingData.description.extra.extra.color,
-                text: pingData.description.extra.extra.text
-            }] : []
-        }] : []
-    };
+function convertTextComponent(pingData: Pinger.Data): Component {
+    // in this case it's just easier to ignore types
+    const comp = pingData.description as any;
+    return comp as Component;
 }
 
 export default AddCommand;
