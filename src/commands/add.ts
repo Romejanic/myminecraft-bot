@@ -163,10 +163,23 @@ const AddCommand: Command = async (ctx, db) => {
                         components: []
                     });
                 }
+
+                buttonCollector.stop("done");
             });
 
-            buttonCollector.on("end", () => {
-
+            buttonCollector.on("end", async (_, reason) => {
+                if(reason !== "done") {
+                    // send timeout message
+                    embed.setColor("RED")
+                    .setTitle("Expired")
+                    .setDescription(`You did not respond in time, so the request has expired.\n\nType \`/add\` again if you'd like to restart.`)
+                    .setFields([]);
+                    await msg.edit({
+                        embeds: [embed],
+                        files: [icon],
+                        components: []
+                    });
+                }
             });
         } catch(e) {
             // ping failed, tell the user
