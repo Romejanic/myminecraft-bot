@@ -1,5 +1,6 @@
 import { MessageAttachment, MessageEmbed } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
+import { EmbedImage } from "../const";
 
 const Util = {
 
@@ -11,13 +12,14 @@ const Util = {
         await ctx.reply(embed, true);
     },
 
-    attachEncodedImage: (image: string) => {
+    attachEncodedImage: (image: string): EmbedImage => {
         const preamble = "data:image/png;base64,";
         if(image.startsWith(preamble)) {
             image = image.substring(preamble.length);
         }
         const buffer = Buffer.from(image, 'base64');
-        return new MessageAttachment(buffer, "favicon.png");
+        const name   = "server-icon.png";
+        return ["attachment://" + name, new MessageAttachment(buffer, name)];
     }
 
 };

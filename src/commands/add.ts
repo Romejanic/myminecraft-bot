@@ -73,12 +73,12 @@ const AddCommand: Command = async (ctx, db) => {
             }
 
             // get icon and create embed
-            const icon = Util.attachEncodedImage(pingData.favicon);
+            const [iconName, icon] = Util.attachEncodedImage(pingData.favicon);
             embed
                 .setTitle("Confirmation")
                 .setDescription("Please confirm that you would like to add this server\n\n**Description**\n```" + motd + "```")
                 .addField("Chosen Name", name)
-                .setThumbnail("attachment://favicon.png");
+                .setThumbnail(iconName);
 
             // create confirm buttons
             const confirmBtn = new MessageButton({

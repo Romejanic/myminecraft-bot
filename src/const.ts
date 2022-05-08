@@ -10,5 +10,5 @@ export type EmbedImage = [string, MessageAttachment];
 
 export function botIcon(): EmbedImage {
     const name = "attachment://icon.png";
-    return [name, new MessageAttachment("icon.png", name)];
+    return [name, new MessageAttachment("icon.png")];
 }
