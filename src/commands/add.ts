@@ -63,7 +63,7 @@ const AddCommand: Command = async (ctx, db) => {
         // try to ping the server
         try {
             const name         = i.getTextInputValue("mymc_server_name");
-            const { ip, port } = parseIpString(i.getTextInputValue("mymc_server_ip"));
+            const [ ip, port ] = Util.parseIpString(i.getTextInputValue("mymc_server_ip"));
             const pingData     = await Pinger.pingPromise(ip, port);
 
             // get the server's MOTD
@@ -193,18 +193,6 @@ const AddCommand: Command = async (ctx, db) => {
         }
     });
 };
-
-function parseIpString(ip: string) {
-    let port = 25565;
-    if(ip.indexOf(":") > -1) {
-        let parsedPort = Number(ip.substring(ip.indexOf(":")+1));
-        if(!isNaN(parsedPort)) {
-            port = parsedPort;
-        }
-        ip = ip.substring(0, ip.indexOf(":"));
-    }
-    return { ip, port };
-}
 
 function convertTextComponent(pingData: Pinger.Data): Component {
     // in this case it's just easier to ignore types

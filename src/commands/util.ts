@@ -1,6 +1,6 @@
 import { MessageAttachment, MessageEmbed } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
-import { EmbedImage } from "../const";
+import { EmbedImage, ServerAddress } from "../const";
 
 const Util = {
 
@@ -20,6 +20,18 @@ const Util = {
         const buffer = Buffer.from(image, 'base64');
         const name   = "server-icon.png";
         return ["attachment://" + name, new MessageAttachment(buffer, name)];
+    },
+
+    parseIpString: (ip: string): ServerAddress => {
+        let port = 25565;
+        if(ip.indexOf(":") > -1) {
+            let parsedPort = Number(ip.substring(ip.indexOf(":")+1));
+            if(!isNaN(parsedPort)) {
+                port = parsedPort;
+            }
+            ip = ip.substring(0, ip.indexOf(":"));
+        }
+        return [ ip, port ];
     }
 
 };

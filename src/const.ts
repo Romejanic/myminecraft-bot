@@ -6,7 +6,8 @@ export const BUG_REPORTS    = "https://github.com/Romejanic/myminecraft-bot/issu
 export const GITHUB_LINK    = "https://github.com/Romejanic/myminecraft-bot";
 export const EMBED_COLOR    = "#4e7a39";
 
-export type EmbedImage = [string, MessageAttachment];
+export type EmbedImage    = [string, MessageAttachment];
+export type ServerAddress = [string, number];
 
 export function botIcon(): EmbedImage {
     const name = "attachment://icon.png";
