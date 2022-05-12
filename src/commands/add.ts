@@ -124,7 +124,9 @@ const AddCommand: Command = async (ctx, db) => {
 
                 if(i.customId === confirmBtn.customId) {
                     try {
-                        await db.newServer(ctx.server.id, name, `${ip}:${port}`);
+                        const portString = port != 25565 ? `:${port}` : "";
+                        const ipString = `${ip}${portString}`;
+                        await db.newServer(ctx.server.id, name, ipString);
                         
                         // send confirmation message
                         embed.setColor("GREEN")
