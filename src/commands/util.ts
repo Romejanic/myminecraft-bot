@@ -1,6 +1,7 @@
-import { MessageAttachment, MessageEmbed } from "discord.js";
+import { MessageAttachment, MessageEmbed, MessageSelectOptionData } from "discord.js";
 import { CommandContext } from "discord.js-slasher";
 import { EmbedImage, ServerAddress } from "../const";
+import { ServerInfo } from "../db";
 
 const Util = {
 
@@ -32,6 +33,16 @@ const Util = {
             ip = ip.substring(0, ip.indexOf(":"));
         }
         return [ ip, port ];
+    },
+
+    serversToDropdown: (servers: ServerInfo[]): MessageSelectOptionData[] => {
+        return servers.map((server, idx) => {
+            return {
+                label: server.name,
+                description: server.ip,
+                value: String(idx)
+            };
+        });
     }
 
 };

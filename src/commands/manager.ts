@@ -7,12 +7,14 @@ import { SUPPORT_SERVER } from "../const";
 import InfoCommand from "./info";
 import ListCommand from "./list";
 import AddCommand from "./add";
+import RemoveCommand from "./remove";
 
 const CommandManagerImpl: CommandManager = {
     commands: {
         "info": InfoCommand,
         "list": ListCommand,
-        "add": AddCommand
+        "add": AddCommand,
+        "remove": RemoveCommand
     },
     
     run: async (ctx, db) => {
