@@ -3,6 +3,9 @@ import { Command } from "./manager";
 import Util from "./util";
 
 const RemoveCommand: Command = async (ctx, db) => {
+    // check the user has permission to do this
+    if(!ctx.server.isUserAdmin) return Util.sendPermissionError(ctx);
+    
     const servers = await db.getServers(ctx.server.id);
 
     // check if there are no servers
