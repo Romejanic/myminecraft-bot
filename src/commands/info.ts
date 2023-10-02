@@ -1,6 +1,6 @@
 import { heapStats } from "bun:jsc";
 import { CommandExecutor } from "cmds";
-import { INVITE_LINK, BUG_REPORTS, GITHUB_LINK, SUPPORT_SERVER, botIcon, EMBED_COLOR } from "const";
+import { INVITE_LINK, BUG_REPORTS, GITHUB_LINK, SUPPORT_SERVER, botIcon, EMBED_COLOR, BOT_VERSION } from "const";
 import { EmbedBuilder } from "discord.js";
 
 const InfoCommand: CommandExecutor = async (ctx) => {
@@ -21,7 +21,7 @@ const InfoCommand: CommandExecutor = async (ctx) => {
         .setThumbnail(iconName)
         .setFooter({ text: "Created with ❤️ by @memedealer5011" })
         .addFields([
-            { name: "Version", value: Bun.env["npm_package_version"] || "n/a", inline: true },
+            { name: "Version", value: BOT_VERSION, inline: true },
             { name: "Bun Version", value: Bun.version, inline: true },
             { name: "Operating System", value: process.platform, inline: true },
             { name: "Memory Usage", value: `${(mem.heapSize * 100 / mem.heapCapacity).toFixed(2)}%`, inline: true },

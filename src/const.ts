@@ -1,5 +1,7 @@
 import { AttachmentBuilder } from "discord.js";
 
+export const BOT_VERSION    = Bun.env["npm_package_version"] || "n/a";
+
 export const INVITE_LINK    = "https://discord.com/api/oauth2/authorize?client_id=793150744533925888&permissions=3072&scope=bot%20applications.commands";
 export const SUPPORT_SERVER = "https://discord.gg/fawJ2dTxFS";
 export const BUG_REPORTS    = "https://github.com/Romejanic/myminecraft-bot/issues/new/choose";
