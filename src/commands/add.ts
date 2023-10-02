@@ -1,8 +1,12 @@
 import { CommandExecutor } from "cmds";
-import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import { pingPromise, Data } from "minecraft-pinger";
+import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from "discord.js";
+import { pingPromise, Data, ping } from "minecraft-pinger";
 import { Component, format } from 'mc-chat-format';
-import { attachEncodedImage, parseIpString } from "../util";
+import { attachEncodedImage, getButtonPress, parseIpString } from "../util";
+import createLogger from "logger";
+import { addServer } from "db";
+
+const logger = createLogger("AddCmd");
 
 const AddCommand: CommandExecutor = async (ctx) => {
     // create the modal
@@ -31,7 +35,14 @@ const AddCommand: CommandExecutor = async (ctx) => {
             new ActionRowBuilder<TextInputBuilder>().addComponents(ipField)
         ]
     });
-    const response = await ctx.modalResponse(modal);
+
+    // get the response of the modal
+    let response: ModalSubmitInteraction | null = null;
+    try {
+        response = await ctx.modalResponse(modal);
+    } catch(e) {
+        return; // it probably timed out
+    }
 
     // extract responses from modal
     const serverName = response.fields.getTextInputValue("name");
@@ -66,7 +77,11 @@ const AddCommand: CommandExecutor = async (ctx) => {
 
     // update embed
     embed.setTitle("Confirmation")
-        .setDescription(`Please confirm you would like to add the server ${serverName}.\n\n**Description**\n\`\`\`\n${motd}\n\`\`\``);
+        .setDescription(`Please confirm you would like to add the server ${serverName}.\n\n**Description**\n\`\`\`\n${motd}\n\`\`\``)
+        .addFields([
+            { name: "Ping", value: `${pingData.ping}ms`, inline: true },
+            { name: "Player Count", value: `${pingData.players.online} / ${pingData.players.max}`, inline: true }
+        ]);
 
     // attach icon if it exists
     let iconAttachment: AttachmentBuilder | null = null;
@@ -77,13 +92,15 @@ const AddCommand: CommandExecutor = async (ctx) => {
     }
 
     // create button components
+    const confirmId = "add_confirm";
     const confirmBtn = new ButtonBuilder({
-        customId: "add_confirm",
+        customId: confirmId,
         label: "Confirm",
         style: ButtonStyle.Success
     });
+    const cancelId = "add_cancel";
     const cancelBtn = new ButtonBuilder({
-        customId: "add_cancel",
+        customId: cancelId,
         label: "Cancel",
         style: ButtonStyle.Danger
     });
@@ -97,6 +114,53 @@ const AddCommand: CommandExecutor = async (ctx) => {
         files: iconAttachment ? [iconAttachment] : undefined,
         components: [buttonRow]
     });
+    
+    try {
+        const btnPress = await getButtonPress(msg, [confirmId, cancelId], ctx.user);
+        
+        if(btnPress.customId === confirmId) {
+            // confirmed, add the server
+            if(await addServer(serverName, serverIP, ctx.server?.guild!)) {
+                embed.setColor("Green")
+                    .setTitle("Added!")
+                    .setDescription(`The server ${serverName} has been added to your server list!`)
+                    .addFields([
+                        { name: "Address", value: serverIP, inline: true }
+                    ]);
+            } else {
+                embed.setColor("Red")
+                    .setTitle("Something went wrong")
+                    .setDescription("Sorry, the server couldn't be added at the moment. Try again later.");
+            }
+
+            await btnPress.update({
+                embeds: [embed],
+                components: [] 
+            });
+        } else {
+            // cancelled, show the rejected request
+            embed.setColor("Red")
+                .setTitle("Cancelled")
+                .setDescription(`The server ${serverName} will not be added. Type \`/add\` to start again.`);
+            await btnPress.update({
+                embeds: [embed],
+                components: []
+            });
+        }
+    } catch(e) {
+        // it probably timed out
+        if(typeof e !== "undefined") {
+            logger.error("Failed to collect button press!", e);
+            embed.setDescription("Something went wrong handling the request. Please try again later.");
+        } else {
+            embed.setDescription("The request timed out. Please start a new request");
+        }
+        embed.setColor("Red");
+        await response.editReply({
+            embeds: [embed],
+            components: []
+        });
+    }
 };
 
 function convertTextComponent(pingData: Data): Component {
