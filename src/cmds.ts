@@ -1,5 +1,8 @@
 import InfoCommand from "commands/info";
 import { CommandContext } from "discord.js-slasher";
+import createLogger from "logger";
+
+const logger = createLogger("Commands");
 
 export type CommandExecutor = (ctx: CommandContext) => Promise<unknown>;
 
@@ -11,6 +14,6 @@ export default async function handleCommand(ctx: CommandContext) {
     try {
         if(commandMap[ctx.name]) await commandMap[ctx.name](ctx);
     } catch(e) {
-        console.error("Failed to run command!", e);
+        logger.error("Failed to run command!", e);
     }
 }
