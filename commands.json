@@ -2,6 +2,10 @@
 
     "info": {
         "description": "Displays bot version and information"
+    },
+
+    "add": {
+        "description": "Adds a new Minecraft server"
     }
 
 }
