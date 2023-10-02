@@ -10,6 +10,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
     "async": "export NODE_ENV=production && nohup npm run start > output.log &"
   },
   "repository": {

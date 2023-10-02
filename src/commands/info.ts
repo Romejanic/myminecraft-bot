@@ -23,7 +23,7 @@ const InfoCommand: CommandExecutor = async (ctx) => {
         .addFields([
             { name: "Version", value: Bun.env["npm_package_version"] || "n/a", inline: true },
             { name: "Bun Version", value: Bun.version, inline: true },
-            { name: "Operating System", value: process.platform, inline: true }, // TODO: fix me
+            { name: "Operating System", value: process.platform, inline: true },
             { name: "Memory Usage", value: `${(mem.heapSize * 100 / mem.heapCapacity).toFixed(2)}%`, inline: true },
             { name: "Serving", value: `${ctx.client.guilds.cache.size} servers`, inline: true },
             { name: "Environment", value: Bun.env.NODE_ENV === "production" ? "Production" : "Development", inline: true }
