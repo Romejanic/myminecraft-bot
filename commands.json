@@ -12,6 +12,13 @@
                 "ManageGuild"
             ]
         }
+    },
+
+    "list": {
+        "description": "Lists your servers without pinging them",
+        "permissions": {
+            "dm": false
+        }
     }
 
 }
