@@ -50,13 +50,15 @@ const StatusCommand: CommandExecutor = async (ctx) => {
                 embed.setTitle(`${server.name} Status`)
                     .setDescription(`${server.ip}`)
                     .setColor("Red")
-                    .setFooter(null);
+                    .setFooter(null)
+                    .setFields([]);
             } else {
                 logger.error("Got invalid server ID somehow, ID:", selectedId);
                 embed.setTitle("Invalid server")
                     .setDescription("The server you selected is invalid. This is probably a bug, please report it.")
                     .setColor("Red")
-                    .setFooter(null);
+                    .setFooter(null)
+                    .setFields([]);
             }
         }
 
