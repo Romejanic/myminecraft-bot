@@ -1,5 +1,5 @@
 import { CommandExecutor } from "cmds";
-import { Maybe } from "const";
+import { Maybe, BUG_REPORTS } from "const";
 import { listServers } from "db";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
@@ -19,10 +19,7 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
         return await ctx.reply(embed);
     }
 
-    const embed = new EmbedBuilder()
-        .setTitle("Choose server")
-        .setDescription("Please select the server you'd like to remove")
-        .setColor("Grey");
+    const embed = new EmbedBuilder();
 
     // create the dropdown menu
     const selectMenu = new StringSelectMenuBuilder({
@@ -55,7 +52,10 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
             if(server) {
                 embed.setTitle("Confirm delete")
                     .setDescription(`Are you sure you want to delete ${server.name}?`)
-                    .setColor("Red");
+                    .setColor("Red")
+                    .setFields([
+                        { name: "Address", value: server.ip, inline: true }
+                    ]);
             } else {
                 logger.error("Got invalid server ID somehow, ID:", selectedId);
                 embed.setTitle("Invalid server")
@@ -64,6 +64,10 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
                     .setFooter(null)
                     .setFields([]);
             }
+        } else {
+            embed.setTitle("Choose server")
+                .setDescription("Please select the server you'd like to remove")
+                .setColor("Grey");
         }
 
         // update options so the chosen server stays selected
@@ -78,6 +82,7 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
     }
 
     // send initial embed
+    await updateEmbed();
     const msg = await ctx.reply({
         embeds: [embed],
         components: [selectRow]
