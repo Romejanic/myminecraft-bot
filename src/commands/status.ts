@@ -68,7 +68,8 @@ const StatusCommand: CommandExecutor = async (ctx) => {
                 if(serverPing.data) {
                     fields.push(
                         { name: "Ping", value: `${serverPing.data.ping}ms`, inline: true },
-                        { name: "Player Count", value: `${serverPing.data.players.online} / ${serverPing.data.players.max}`, inline: true }
+                        { name: "Player Count", value: `${serverPing.data.players.online} / ${serverPing.data.players.max}`, inline: true },
+                        { name: "Version", value: `${serverPing.data.version.name} (${serverPing.data.version.protocol})`, inline: true }
                     );
                     if(serverPing.data.description) {
                         motdString = `\n\n**Description**\n\`\`\`\n${format(convertTextComponent(serverPing.data)).split("\n").map(s => s.trim()).join("\n")}\n\`\`\``;
