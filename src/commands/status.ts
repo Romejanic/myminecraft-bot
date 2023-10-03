@@ -1,10 +1,10 @@
 import { CommandExecutor } from "cmds";
 import { BUG_REPORTS, Maybe, SERVER_LIMIT } from "const";
 import { Server, listServers } from "db";
-import { APIEmbedField, ActionRowBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
 import { Data, pingPromise } from "minecraft-pinger";
-import { parseIpString, convertTextComponent } from "../util";
+import { parseIpString, convertTextComponent, attachEncodedImage } from "../util";
 import { format } from "mc-chat-format";
 
 const logger = createLogger("StatusCmd");
@@ -42,6 +42,10 @@ const StatusCommand: CommandExecutor = async (ctx) => {
     // update embed data
     async function updateEmbed(i?: StringSelectMenuInteraction) {
         updatingEmbed = true;
+        const files: AttachmentBuilder[] = [];
+
+        // clear fields and thumbnail
+        embed.setFields([]).setThumbnail(null);
 
         if(!selectedId) {
             // show all servers
@@ -69,6 +73,11 @@ const StatusCommand: CommandExecutor = async (ctx) => {
                     if(serverPing.data.description) {
                         motdString = `\n\n**Description**\n\`\`\`\n${format(convertTextComponent(serverPing.data)).split("\n").map(s => s.trim()).join("\n")}\n\`\`\``;
                     }
+                    if(serverPing.data.favicon) {
+                        const [iconName, icon] = attachEncodedImage(serverPing.data.favicon);
+                        embed.setThumbnail(iconName);
+                        files.push(icon);
+                    }
                 }
                 const statusString = serverPing.state === "success" ? "Online!" : serverPing.state === "failure" ? "Cannot reach server\n\nIt may be offline or unavailable." : "Pinging...";
                 embed.setTitle(`${server.name} Status`)
@@ -95,12 +104,14 @@ const StatusCommand: CommandExecutor = async (ctx) => {
         if(i) {
             await i.update({
                 embeds: [embed],
-                components: [selectRow]
+                components: [selectRow],
+                files
             });
         } else if(message) {
             await message.edit({
                 embeds: [embed],
-                components: [selectRow]
+                components: [selectRow],
+                files
             });
         }
 
