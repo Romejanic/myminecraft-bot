@@ -1,8 +1,11 @@
 import { CommandExecutor } from "cmds";
 import { Maybe, SERVER_LIMIT } from "const";
-import { listServers } from "db";
-import { ActionRowBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { Server, listServers } from "db";
+import { APIEmbedField, ActionRowBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
+import { Data, pingPromise } from "minecraft-pinger";
+import { parseIpString, convertTextComponent } from "../util";
+import { format } from "mc-chat-format";
 
 const logger = createLogger("StatusCmd");
 
@@ -22,6 +25,9 @@ const StatusCommand: CommandExecutor = async (ctx) => {
     // persistent state
     let selectedId: Maybe<number> = null;
     let message: Maybe<Message> = null;
+    let pingData = pingServers(servers, onPingDataReturned);
+    let updatingEmbed = false;
+    let needsUpdate = false;
     const embed = new EmbedBuilder();
 
     // create dropdown menu
@@ -35,11 +41,14 @@ const StatusCommand: CommandExecutor = async (ctx) => {
 
     // update embed data
     async function updateEmbed(i?: StringSelectMenuInteraction) {
+        updatingEmbed = true;
+
         if(!selectedId) {
             // show all servers
             embed.setTitle("Servers Status")
+                .setDescription(null)
                 .setFields(servers.map(s => (
-                    { name: s.name, value: `Status`, inline: true }
+                    { name: s.name, value: formatStatusShort(pingData[s.id]), inline: true }
                 )))
                 .setColor("Yellow")
                 .setFooter({ text: `${servers.length} / ${SERVER_LIMIT} servers` });
@@ -47,11 +56,26 @@ const StatusCommand: CommandExecutor = async (ctx) => {
             // show single server status
             const server = servers.find(s => s.id === selectedId);
             if(server) {
+                const serverPing = pingData[server?.id];
+                const fields: APIEmbedField[] = [
+                    { name: "Address", value: server.ip, inline: true }
+                ];
+                let motdString = "";
+                if(serverPing.data) {
+                    fields.push(
+                        { name: "Ping", value: `${serverPing.data.ping}ms`, inline: true },
+                        { name: "Player Count", value: `${serverPing.data.players.online} / ${serverPing.data.players.max}`, inline: true }
+                    );
+                    if(serverPing.data.description) {
+                        motdString = `\n\n**Description**\n\`\`\`\n${format(convertTextComponent(serverPing.data)).split("\n").map(s => s.trim()).join("\n")}\n\`\`\``;
+                    }
+                }
+                const statusString = serverPing.state === "success" ? "Online!" : serverPing.state === "failure" ? "Cannot reach server\n\nIt may be offline or unavailable." : "Pinging...";
                 embed.setTitle(`${server.name} Status`)
-                    .setDescription(`${server.ip}`)
-                    .setColor("Red")
+                    .setDescription(`${statusIcon(serverPing.state)} ${statusString}${motdString}`)
+                    .setColor(serverPing.state === "pending" ? "Yellow" : serverPing.state === "failure" ? "Red" : "Green")
                     .setFooter(null)
-                    .setFields([]);
+                    .setFields(fields);
             } else {
                 logger.error("Got invalid server ID somehow, ID:", selectedId);
                 embed.setTitle("Invalid server")
@@ -79,8 +103,18 @@ const StatusCommand: CommandExecutor = async (ctx) => {
                 components: [selectRow]
             });
         }
+
+        // decide if we need to re-update the embed
+        updatingEmbed = false;
+        if(needsUpdate) updateEmbed();
+        needsUpdate = false;
     }
     updateEmbed();
+
+    function onPingDataReturned() {
+        if(!updatingEmbed) updateEmbed();
+        else needsUpdate = true;
+    }
 
     // send initial response
     message = await ctx.reply({
@@ -112,5 +146,40 @@ const StatusCommand: CommandExecutor = async (ctx) => {
         });
     });
 };
+
+type PingStatus = "pending" | "success" | "failure";
+
+interface PendingData {
+    state: PingStatus;
+    data?: Data;
+}
+
+function pingServers(servers: Server[], onUpdate: () => unknown) {
+    const statusObj: Record<number, PendingData> = {};
+    for(let server of servers) {
+        statusObj[server.id] = { state: "pending" };
+        const [ip, port] = parseIpString(server.ip);
+        pingPromise(ip, port)
+            .then(data => statusObj[server.id] = { state: "success", data })
+            .catch(_ => statusObj[server.id] = { state: "failure" })
+            .finally(onUpdate);
+    }
+    return statusObj;
+}
+
+function statusIcon(status: PingStatus) {
+    switch(status) {
+        case "success": return "✅";
+        case "failure": return "❌";
+        case "pending": return "⏳";
+        default: return "?";
+    }
+}
+
+function formatStatusShort(data: PendingData) {
+    if(data.state === "success") return `${statusIcon(data.state)} ${data.data?.ping}ms`;
+    if(data.state === "failure") return `${statusIcon(data.state)} Offline`;
+    return `${statusIcon(data.state)} Pinging...`;
+}
 
 export default StatusCommand;

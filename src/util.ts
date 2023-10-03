@@ -1,5 +1,7 @@
 import { EmbedImage, ServerAddress } from "const";
-import { AttachmentBuilder, ButtonBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
+import { AttachmentBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
+import { Component } from "mc-chat-format";
+import { Data } from "minecraft-pinger";
 
 export function parseIpString(ip: string): ServerAddress {
     let port = 25565;
@@ -50,4 +52,10 @@ export function getButtonPress(msg: Message, buttonIds: string[], user: User): P
             }
         });
     });
+}
+
+export function convertTextComponent(pingData: Data): Component {
+    // in this case it's just easier to ignore types
+    const comp = pingData.description as any;
+    return comp as Component;
 }

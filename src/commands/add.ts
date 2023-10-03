@@ -1,8 +1,8 @@
 import { CommandExecutor } from "cmds";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from "discord.js";
-import { pingPromise, Data, ping } from "minecraft-pinger";
-import { Component, format } from 'mc-chat-format';
-import { attachEncodedImage, getButtonPress, parseIpString } from "../util";
+import { pingPromise, Data } from "minecraft-pinger";
+import { format } from 'mc-chat-format';
+import { attachEncodedImage, convertTextComponent, getButtonPress, parseIpString } from "../util";
 import createLogger from "logger";
 import { addServer, countServers } from "db";
 import { SERVER_LIMIT } from "const";
@@ -174,11 +174,5 @@ const AddCommand: CommandExecutor = async (ctx) => {
         });
     }
 };
-
-function convertTextComponent(pingData: Data): Component {
-    // in this case it's just easier to ignore types
-    const comp = pingData.description as any;
-    return comp as Component;
-}
 
 export default AddCommand;

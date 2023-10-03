@@ -1,9 +1,11 @@
 import { Guild } from "discord.js";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, servers } from "@prisma/client";
 import createLogger from "logger";
 
 const prisma = new PrismaClient();
 const logger = createLogger("DB");
+
+export type Server = servers;
 
 export async function addServer(name: string, ip: string, guild: Guild) {
     try {
