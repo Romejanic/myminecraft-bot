@@ -8,12 +8,12 @@ const ListCommand: CommandExecutor = async (ctx) => {
     const servers = await listServers(guild);
 
     // make sure there are servers added
-    if(servers.length < 0) {
+    if(servers.length <= 0) {
         const embed = new EmbedBuilder()
             .setTitle("No servers")
             .setDescription("You haven't added any servers yet! Type `/add` to add one.")
             .setColor("Red");
-        await ctx.reply(embed);
+        return await ctx.reply(embed);
     }
 
     const embed = new EmbedBuilder()

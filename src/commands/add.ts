@@ -4,11 +4,23 @@ import { pingPromise, Data, ping } from "minecraft-pinger";
 import { Component, format } from 'mc-chat-format';
 import { attachEncodedImage, getButtonPress, parseIpString } from "../util";
 import createLogger from "logger";
-import { addServer } from "db";
+import { addServer, countServers } from "db";
+import { SERVER_LIMIT } from "const";
 
 const logger = createLogger("AddCmd");
 
 const AddCommand: CommandExecutor = async (ctx) => {
+    const guild = ctx.server!.guild;
+
+    // check that the server hasn't reached it's limit
+    if(await countServers(guild) >= SERVER_LIMIT) {
+        const embed = new EmbedBuilder()
+            .setTitle("Too many servers!")
+            .setDescription(`You've reached your ${SERVER_LIMIT} server limit. Use \`/remove\` to remove one first.`)
+            .setColor("Red");
+        return await ctx.reply(embed);
+    }
+
     // create the modal
     const nameField = new TextInputBuilder({
         customId: "name",
@@ -120,7 +132,7 @@ const AddCommand: CommandExecutor = async (ctx) => {
         
         if(btnPress.customId === confirmId) {
             // confirmed, add the server
-            if(await addServer(serverName, serverIP, ctx.server?.guild!)) {
+            if(await addServer(serverName, serverIP, guild)) {
                 embed.setColor("Green")
                     .setTitle("Added!")
                     .setDescription(`The server ${serverName} has been added to your server list!`)
