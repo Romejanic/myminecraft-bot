@@ -12,6 +12,7 @@ export const SERVER_LIMIT   = 5;
 
 export type EmbedImage    = [string, AttachmentBuilder];
 export type ServerAddress = [string, number];
+export type Maybe<T>      = T | null;
 
 export function botIcon(): EmbedImage {
     const name = "attachment://icon.png";
