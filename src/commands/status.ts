@@ -1,5 +1,5 @@
 import { CommandExecutor } from "cmds";
-import { Maybe, SERVER_LIMIT } from "const";
+import { BUG_REPORTS, Maybe, SERVER_LIMIT } from "const";
 import { Server, listServers } from "db";
 import { APIEmbedField, ActionRowBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
@@ -79,7 +79,7 @@ const StatusCommand: CommandExecutor = async (ctx) => {
             } else {
                 logger.error("Got invalid server ID somehow, ID:", selectedId);
                 embed.setTitle("Invalid server")
-                    .setDescription("The server you selected is invalid. This is probably a bug, please report it.")
+                    .setDescription(`The server you selected is invalid. This is probably a bug, please report it.\n\n[Click here](${BUG_REPORTS}) to submit a bug report.`)
                     .setColor("Red")
                     .setFooter(null)
                     .setFields([]);
@@ -106,8 +106,10 @@ const StatusCommand: CommandExecutor = async (ctx) => {
 
         // decide if we need to re-update the embed
         updatingEmbed = false;
-        if(needsUpdate) updateEmbed();
-        needsUpdate = false;
+        if(needsUpdate) {
+            needsUpdate = false;
+            await updateEmbed();
+        }
     }
     updateEmbed();
 
