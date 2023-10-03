@@ -5,7 +5,13 @@
     },
 
     "add": {
-        "description": "Adds a new Minecraft server"
+        "description": "Adds a new Minecraft server",
+        "permissions": {
+            "dm": false,
+            "requires": [
+                "ManageGuild"
+            ]
+        }
     }
 
 }
