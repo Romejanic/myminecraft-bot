@@ -4,6 +4,7 @@ import createLogger from "logger";
 import AddCommand from "commands/add";
 import InfoCommand from "commands/info";
 import ListCommand from "commands/list";
+import StatusCommand from "commands/status";
 
 const logger = createLogger("Commands");
 
@@ -12,7 +13,8 @@ export type CommandExecutor = (ctx: CommandContext) => Promise<unknown>;
 const commandMap: Record<string, CommandExecutor> = {
     info: InfoCommand,
     add: AddCommand,
-    list: ListCommand
+    list: ListCommand,
+    status: StatusCommand
 };
 
 export default async function handleCommand(ctx: CommandContext) {

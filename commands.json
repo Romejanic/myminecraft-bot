@@ -19,6 +19,13 @@
         "permissions": {
             "dm": false
         }
+    },
+
+    "status": {
+        "description": "Pings your servers and shows their status",
+        "permissions": {
+            "dm": false
+        }
     }
 
 }
