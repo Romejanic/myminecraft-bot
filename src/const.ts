@@ -8,6 +8,8 @@ export const BUG_REPORTS    = "https://github.com/Romejanic/myminecraft-bot/issu
 export const GITHUB_LINK    = "https://github.com/Romejanic/myminecraft-bot";
 export const EMBED_COLOR    = "#4e7a39";
 
+export const SERVER_LIMIT   = 5;
+
 export type EmbedImage    = [string, AttachmentBuilder];
 export type ServerAddress = [string, number];
 

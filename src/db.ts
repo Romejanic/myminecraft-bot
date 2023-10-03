@@ -18,3 +18,19 @@ export async function addServer(name: string, ip: string, guild: Guild) {
         return false;
     }
 }
+
+export async function listServers(guild: Guild) {
+    return await prisma.servers.findMany({
+        where: {
+            guild: guild.id
+        }
+    });
+}
+
+export async function countServers(guild: Guild) {
+    return await prisma.servers.count({
+        where: {
+            guild: guild.id
+        }
+    });
+}
