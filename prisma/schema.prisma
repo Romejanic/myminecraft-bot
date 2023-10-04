@@ -8,8 +8,10 @@ datasource db {
 }
 
 model servers {
-  id    Int    @id @default(autoincrement())
-  guild String @db.VarChar(24)
-  name  String @db.VarChar(30)
-  ip    String @db.VarChar(255)
+  id         Int    @id @default(autoincrement())
+  guild      String @db.VarChar(24)
+  name       String @db.VarChar(30)
+  ip         String @db.VarChar(255)
+  icon_cache String?
+  icon_hash  String?
 }
