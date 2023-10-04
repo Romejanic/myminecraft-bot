@@ -1,4 +1,4 @@
-import { EmbedImage, ServerAddress } from "const";
+import { EmbedImage, INT_TIMEOUT, ServerAddress } from "const";
 import { AttachmentBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
 import { Component } from "mc-chat-format";
 import { Data } from "minecraft-pinger";
@@ -30,7 +30,7 @@ export function getButtonPress(msg: Message, buttonIds: string[], user: User): P
         const collector = msg.createMessageComponentCollector({
             componentType: ComponentType.Button,
             filter: i => buttonIds.some(id => i.customId === id),
-            time: 10 * 60 * 1000
+            time: INT_TIMEOUT
         });
         collector.on("collect", async i => {
             if(i.user.id !== user.id) {

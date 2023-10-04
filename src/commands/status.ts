@@ -1,5 +1,5 @@
 import { CommandExecutor } from "cmds";
-import { BUG_REPORTS, Maybe, SERVER_LIMIT } from "const";
+import { BUG_REPORTS, INT_TIMEOUT, Maybe, SERVER_LIMIT } from "const";
 import { Server, listServers } from "db";
 import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
@@ -139,7 +139,8 @@ const StatusCommand: CommandExecutor = async (ctx) => {
     // create interaction collector
     const collect = message.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
-        filter: i => i.customId === "server"
+        filter: i => i.customId === "server",
+        time: INT_TIMEOUT
     });
 
     collect.on("collect", async i => {

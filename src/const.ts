@@ -9,6 +9,7 @@ export const GITHUB_LINK    = "https://github.com/Romejanic/myminecraft-bot";
 export const EMBED_COLOR    = "#4e7a39";
 
 export const SERVER_LIMIT   = 5;
+export const INT_TIMEOUT    = 12 * 60 * 1000; // 12 minutes
 
 export type EmbedImage    = [string, AttachmentBuilder];
 export type ServerAddress = [string, number];

@@ -1,5 +1,5 @@
 import { CommandExecutor } from "cmds";
-import { Maybe, BUG_REPORTS } from "const";
+import { Maybe, BUG_REPORTS, INT_TIMEOUT } from "const";
 import { listServers } from "db";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
@@ -90,7 +90,8 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
 
     const collector = msg.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
-        filter: i => i.customId === "server"
+        filter: i => i.customId === "server",
+        time: INT_TIMEOUT
     });
 
     collector.on("collect", async i => {
@@ -103,6 +104,7 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
 
     collector.on("end", async () => {
         // remove components
+        embed.setFooter({ text: "Request expired. Type /remove to start a new one." });
         await msg.edit({
             embeds: [embed],
             components: []
