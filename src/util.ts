@@ -59,3 +59,9 @@ export function convertTextComponent(pingData: Data): Component {
     const comp = pingData.description as any;
     return comp as Component;
 }
+
+export function hashServerIcon(icon: string) {
+    const hash = new Bun.CryptoHasher("sha256");
+    hash.update(icon);
+    return hash.digest("hex");
+}

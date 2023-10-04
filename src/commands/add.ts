@@ -132,7 +132,7 @@ const AddCommand: CommandExecutor = async (ctx) => {
         
         if(btnPress.customId === confirmId) {
             // confirmed, add the server
-            if(await addServer(serverName, serverIP, guild)) {
+            if(await addServer(serverName, serverIP, guild, pingData.favicon)) {
                 embed.setColor("Green")
                     .setTitle("Added!")
                     .setDescription(`The server ${serverName} has been added to your server list!`)
