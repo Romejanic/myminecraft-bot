@@ -1,8 +1,9 @@
 import { CommandExecutor } from "cmds";
 import { Maybe, BUG_REPORTS, INT_TIMEOUT } from "const";
 import { listServers } from "db";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
+import { attachEncodedImage } from "../util";
 
 const logger = createLogger("RemoveCmd");
 
@@ -47,6 +48,8 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
     let selectedId: Maybe<number> = null;
 
     async function updateEmbed(i?: StringSelectMenuInteraction) {
+        let files: AttachmentBuilder[] = [];
+
         if(selectedId) {
             const server = servers.find(s => s.id === selectedId);
             if(server) {
@@ -56,6 +59,12 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
                     .setFields([
                         { name: "Address", value: server.ip, inline: true }
                     ]);
+                // add cached icon if it exists
+                if(server.icon_cache) {
+                    const [ iconName, icon ] = attachEncodedImage(server.icon_cache);
+                    files.push(icon);
+                    embed.setThumbnail(iconName);
+                }
             } else {
                 logger.error("Got invalid server ID somehow, ID:", selectedId);
                 embed.setTitle("Invalid server")
@@ -77,7 +86,8 @@ const RemoveCommand: CommandExecutor = async (ctx) => {
 
         if(i) await i.update({
             embeds: [embed],
-            components: [selectRow, buttonRow]
+            components: [selectRow, buttonRow],
+            files
         });
     }
 

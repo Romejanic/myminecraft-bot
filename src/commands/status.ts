@@ -187,7 +187,6 @@ function pingServers(servers: Server[], onUpdate: () => unknown) {
                             .catch(e => logger.warn("Failed to update cached server icon!", e));
                     }
                 } else if(server.icon_cache) {
-
                     // fallback on cached icon if the ping doesn't find one
                     data.favicon = server.icon_cache;
                 }
