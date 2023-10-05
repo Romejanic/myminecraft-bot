@@ -1,0 +1,59 @@
+{
+
+    "info": {
+        "description": "Displays bot version and information"
+    },
+
+    "add": {
+        "description": "Adds a new Minecraft server",
+        "permissions": {
+            "dm": false,
+            "requires": [
+                "ManageGuild"
+            ]
+        }
+    },
+
+    "remove": {
+        "description": "Removes a Minecraft server from your list",
+        "permissions": {
+            "dm": false,
+            "requires": [
+                "ManageGuild"
+            ]
+        }
+    },
+
+    "list": {
+        "description": "Lists your servers without pinging them",
+        "permissions": {
+            "dm": false
+        }
+    },
+
+    "status": {
+        "description": "Pings your servers and shows their status",
+        "permissions": {
+            "dm": false
+        }
+    },
+
+    "players": {
+        "description": "Displays a sample of online players",
+        "permissions": {
+            "dm": false
+        }
+    },
+
+    "ping": {
+        "description": "Pings a server address directly",
+        "options": {
+            "address": {
+                "description": "The server address to ping",
+                "type": "string",
+                "required": true
+            }
+        }
+    }
+
+}

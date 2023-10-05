@@ -103,6 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
-# Bot credentials
+# Config file
 config.json
 config.json.old
+
+# Bot Authorisation File
+/auth.json
