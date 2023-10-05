@@ -52,3 +52,17 @@ export async function setCachedIcon(server: Server, icon: string) {
         }
     });
 }
+
+export async function deleteServer(server: Server) {
+    try {
+        await prisma.servers.delete({
+            where: {
+                id: server.id
+            }
+        });
+        return true;
+    } catch(e) {
+        logger.error("Failed to delete server!", e);
+        return false;
+    }
+}
