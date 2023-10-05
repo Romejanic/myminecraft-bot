@@ -38,7 +38,7 @@ $ git clone https://github.com/Romejanic/myminecraft-bot.git
 $ cd myminecraft-bot
 $ bun install                # download dependencies
 $ cp .env.example .env       # create .env file
-$ vi .env                    # add database credentails
+$ vi .env                    # add database credentials
 $ bunx prisma migrate deploy # migrate database to match schema
 $ bunx slasher               # deploy commands and save bot token
 $ bun dev                    # start bot in watch mode for development
