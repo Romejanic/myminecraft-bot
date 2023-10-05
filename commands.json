@@ -43,6 +43,17 @@
         "permissions": {
             "dm": false
         }
+    },
+
+    "ping": {
+        "description": "Pings a server address directly",
+        "options": {
+            "address": {
+                "description": "The server address to ping",
+                "type": "string",
+                "required": true
+            }
+        }
     }
 
 }

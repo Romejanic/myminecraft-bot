@@ -9,6 +9,7 @@ import ListCommand from "commands/list";
 import StatusCommand from "commands/status";
 import RemoveCommand from "commands/remove";
 import PlayersCommand from "commands/players";
+import PingCommand from "commands/ping";
 
 const logger = createLogger("Commands");
 
@@ -20,7 +21,8 @@ const commandMap: Record<string, CommandExecutor> = {
     list: ListCommand,
     status: StatusCommand,
     remove: RemoveCommand,
-    players: PlayersCommand
+    players: PlayersCommand,
+    ping: PingCommand
 };
 
 export default async function handleCommand(ctx: CommandContext) {
