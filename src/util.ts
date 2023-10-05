@@ -1,6 +1,6 @@
 import { EmbedImage, INT_TIMEOUT, ServerAddress } from "const";
 import { AttachmentBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
-import { Component } from "mc-chat-format";
+import { Component, convertOld, format } from "mc-chat-format";
 import { Data } from "minecraft-pinger";
 
 export function parseIpString(ip: string): ServerAddress {
@@ -58,6 +58,14 @@ export function convertTextComponent(pingData: Data): Component {
     // in this case it's just easier to ignore types
     const comp = pingData.description as any;
     return comp as Component;
+}
+
+export function stripTextComponent(component: Component) {
+    return format(component).split("\n").map(s => s.trim()).join("\n");
+}
+
+export function stripMinecraftText(text: string) {
+    return stripTextComponent(convertOld(text));
 }
 
 export function hashServerIcon(icon: string) {

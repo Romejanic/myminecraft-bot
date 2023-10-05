@@ -9,7 +9,7 @@ export type PingStatus = "pending" | "success" | "failure";
 
 export interface PendingData {
     state: PingStatus;
-    data?: Data;
+    data?: PingResponse;
 }
 
 export default function pingServers(servers: Server[], onUpdate: () => unknown) {
@@ -19,7 +19,7 @@ export default function pingServers(servers: Server[], onUpdate: () => unknown) 
         const [ip, port] = parseIpString(server.ip);
         pingPromise(ip, port)
             .then(data => {
-                statusObj[server.id] = { state: "success", data };
+                statusObj[server.id] = { state: "success", data: data as PingResponse };
 
                 // update cached icon if needed
                 if(data.favicon) {
@@ -48,3 +48,16 @@ export function statusIcon(status: PingStatus) {
         default: return "?";
     }
 }
+
+// hack in type support for player sample
+export interface PingResponse extends Data {
+    players: {
+        online: number;
+        max: number;
+        sample: {
+            name: string;
+            id: string;
+        }[]
+    }
+}
+

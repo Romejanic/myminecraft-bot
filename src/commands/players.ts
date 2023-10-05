@@ -3,7 +3,7 @@ import { BUG_REPORTS, INT_TIMEOUT, Maybe } from "const";
 import { listServers } from "db";
 import { ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
-import { attachEncodedImage } from "../util";
+import { attachEncodedImage, stripMinecraftText } from "../util";
 import pingServers, { statusIcon } from "pinger";
 
 const logger = createLogger("PlayersCmd");
@@ -58,9 +58,20 @@ const PlayersCommand: CommandExecutor = async (ctx) => {
         } else {
             const selectedServer = servers.find(s => s.id === selectedId);
             if(selectedServer) {
+                const serverPing = pingData[selectedServer.id];
+                const playerSample = serverPing.data?.players.sample;
+                const sampleString = playerSample && playerSample.length > 0 ? `**Player Sample**\n\`\`\`\n${stripMinecraftText(playerSample.map(s => s.name).join("\n"))}\n\`\`\``
+                                    : "No player sample available";
+                const statusText = serverPing.state === "success" ? `Online\n\n${sampleString}`
+                                : serverPing.state === "failure" ? "Cannot reach server"
+                                : "Pinging...";
+
                 embed.setTitle(`${selectedServer.name} Players`)
-                    .setDescription("Players")
-                    .setColor("Green");
+                    .setDescription(`${statusIcon(serverPing.state)} ${statusText}`)
+                    .setColor(serverPing.state === "pending" ? "Yellow" : serverPing.state === "failure" ? "Red" : "Green")
+                    .setFields(serverPing.data ? [
+                        { name: "Player Count", value: `${serverPing.data?.players.online} / ${serverPing.data.players.max}`, inline: true }
+                    ] : []);
                 
                 // add cached server icon if it exists
                 if(selectedServer.icon_cache) {

@@ -3,7 +3,7 @@ import { BUG_REPORTS, INT_TIMEOUT, Maybe, SERVER_LIMIT } from "const";
 import { listServers } from "db";
 import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
-import { convertTextComponent, attachEncodedImage } from "../util";
+import { convertTextComponent, attachEncodedImage, stripTextComponent, stripMinecraftText } from "../util";
 import { format } from "mc-chat-format";
 import pingServers, { PingStatus, PendingData, statusIcon } from "pinger";
 
@@ -69,10 +69,10 @@ const StatusCommand: CommandExecutor = async (ctx) => {
                     fields.push(
                         { name: "Ping", value: `${serverPing.data.ping}ms`, inline: true },
                         { name: "Player Count", value: `${serverPing.data.players.online} / ${serverPing.data.players.max}`, inline: true },
-                        { name: "Version", value: `${serverPing.data.version.name} (${serverPing.data.version.protocol})`, inline: true }
+                        { name: "Version", value: `${stripMinecraftText(serverPing.data.version.name)} (${serverPing.data.version.protocol})`, inline: true }
                     );
                     if(serverPing.data.description) {
-                        motdString = `\n\n**Description**\n\`\`\`\n${format(convertTextComponent(serverPing.data)).split("\n").map(s => s.trim()).join("\n")}\n\`\`\``;
+                        motdString = `\n\n**Description**\n\`\`\`\n${stripTextComponent(convertTextComponent(serverPing.data))}\n\`\`\``;
                     }
                     if(serverPing.data.favicon) {
                         const [iconName, icon] = attachEncodedImage(serverPing.data.favicon);
