@@ -5,7 +5,7 @@ import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, Embe
 import createLogger from "logger";
 import { convertTextComponent, attachEncodedImage } from "../util";
 import { format } from "mc-chat-format";
-import pingServers, { PingStatus, PendingData } from "pinger";
+import pingServers, { PingStatus, PendingData, statusIcon } from "pinger";
 
 const logger = createLogger("StatusCmd");
 
@@ -161,15 +161,6 @@ const StatusCommand: CommandExecutor = async (ctx) => {
         });
     });
 };
-
-function statusIcon(status: PingStatus) {
-    switch(status) {
-        case "success": return "✅";
-        case "failure": return "❌";
-        case "pending": return "⏳";
-        default: return "?";
-    }
-}
 
 function formatStatusShort(data: PendingData) {
     if(data.state === "success") return `${statusIcon(data.state)} ${data.data?.ping}ms`;

@@ -39,3 +39,12 @@ export default function pingServers(servers: Server[], onUpdate: () => unknown) 
     }
     return statusObj;
 }
+
+export function statusIcon(status: PingStatus) {
+    switch(status) {
+        case "success": return "✅";
+        case "failure": return "❌";
+        case "pending": return "⏳";
+        default: return "?";
+    }
+}

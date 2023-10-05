@@ -4,6 +4,7 @@ import { listServers } from "db";
 import { ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
 import { attachEncodedImage } from "../util";
+import pingServers, { statusIcon } from "pinger";
 
 const logger = createLogger("PlayersCmd");
 
@@ -22,6 +23,10 @@ const PlayersCommand: CommandExecutor = async (ctx) => {
 
     // persistent state
     let selectedId: Maybe<number> = null;
+    const pingData = pingServers(servers, onPingDataReturned);
+    let updatingEmbed = false;
+    let needsUpdate = false;
+    let message: Maybe<Message> = null;
     const embed = new EmbedBuilder();
 
     // create dropdown menu
@@ -34,12 +39,22 @@ const PlayersCommand: CommandExecutor = async (ctx) => {
     const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
     async function updateEmbed(i?: StringSelectMenuInteraction) {
+        updatingEmbed = true;
         let files: AttachmentBuilder[] = [];
 
         if(!selectedId) {
-            embed.setTitle("Choose server")
-                    .setDescription("Please select the server you'd like to check the player sample of.")
-                    .setColor("Grey");
+            embed.setTitle("Player counts")
+                    .setDescription("To see the list of online players for a single server, choose it from the dropdown.")
+                    .setColor("Grey")
+                    .setFields(servers.map(s => {
+                        const ping = pingData[s.id];
+                        const players = ping.data ? ping.data.players : null;
+                        return {
+                            name: s.name,
+                            value: `${statusIcon(pingData[s.id].state)}${players ? ` ${players.online} / ${players.max}` : ""}`,
+                            inline: true
+                        }
+                    }));
         } else {
             const selectedServer = servers.find(s => s.id === selectedId);
             if(selectedServer) {
@@ -68,22 +83,42 @@ const PlayersCommand: CommandExecutor = async (ctx) => {
             { label: s.name, description: s.ip, value: String(s.id), default: s.id === selectedId }
         )));
 
-        // update interaction if provided
-        if(i) await i.update({
-            embeds: [embed],
-            components: [selectRow],
-            files
-        });
+        // update interaction if provided or message
+        if(i) {
+            await i.update({
+                embeds: [embed],
+                components: [selectRow],
+                files
+            });
+        } else if(message) {
+            await message.edit({
+                embeds: [embed],
+                components: [selectRow],
+                files
+            });
+        }
+
+        // re-update the embed if needed
+        updatingEmbed = false;
+        if(needsUpdate) {
+            needsUpdate = false;
+            updateEmbed();
+        }
     }
     updateEmbed();
 
-    const msg = await ctx.reply({
+    function onPingDataReturned() {
+        if(!updatingEmbed) updateEmbed();
+        else needsUpdate = true;
+    }
+
+    message = await ctx.reply({
         embeds: [embed],
         components: [selectRow]
     }) as Message;
 
     // add handler to respond to select menu
-    const collector = msg.createMessageComponentCollector({
+    const collector = message.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
         filter: i => i.customId === "server",
         time: INT_TIMEOUT
@@ -98,7 +133,7 @@ const PlayersCommand: CommandExecutor = async (ctx) => {
     collector.on("end", async () => {
         // remove components which are no longer active
         embed.setFooter({ text: "Request expired. Type /players to start a new one." });
-        await msg.edit({
+        if(message) await message.edit({
             embeds: [embed],
             components: []
         });
