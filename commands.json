@@ -36,6 +36,13 @@
         "permissions": {
             "dm": false
         }
+    },
+
+    "players": {
+        "description": "Displays a sample of online players",
+        "permissions": {
+            "dm": false
+        }
     }
 
 }

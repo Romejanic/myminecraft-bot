@@ -8,6 +8,7 @@ import InfoCommand from "commands/info";
 import ListCommand from "commands/list";
 import StatusCommand from "commands/status";
 import RemoveCommand from "commands/remove";
+import PlayersCommand from "commands/players";
 
 const logger = createLogger("Commands");
 
@@ -18,14 +19,14 @@ const commandMap: Record<string, CommandExecutor> = {
     add: AddCommand,
     list: ListCommand,
     status: StatusCommand,
-    // help: ,
     remove: RemoveCommand,
-    // players: 
+    players: PlayersCommand
 };
 
 export default async function handleCommand(ctx: CommandContext) {
     try {
         if(commandMap[ctx.name]) await commandMap[ctx.name](ctx);
+        else throw new Error(`Unrecognised command: /${ctx.name}`);
     } catch(e) {
         logger.error("Failed to run command!", e);
         const embed = new EmbedBuilder()
