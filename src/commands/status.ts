@@ -1,11 +1,11 @@
 import { CommandExecutor } from "cmds";
 import { BUG_REPORTS, INT_TIMEOUT, Maybe, SERVER_LIMIT } from "const";
-import { Server, listServers, setCachedIcon } from "db";
+import { listServers } from "db";
 import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import createLogger from "logger";
-import { Data, pingPromise } from "minecraft-pinger";
-import { parseIpString, convertTextComponent, attachEncodedImage, hashServerIcon } from "../util";
+import { convertTextComponent, attachEncodedImage } from "../util";
 import { format } from "mc-chat-format";
+import pingServers, { PingStatus, PendingData } from "pinger";
 
 const logger = createLogger("StatusCmd");
 
@@ -161,41 +161,6 @@ const StatusCommand: CommandExecutor = async (ctx) => {
         });
     });
 };
-
-type PingStatus = "pending" | "success" | "failure";
-
-interface PendingData {
-    state: PingStatus;
-    data?: Data;
-}
-
-function pingServers(servers: Server[], onUpdate: () => unknown) {
-    const statusObj: Record<number, PendingData> = {};
-    for(let server of servers) {
-        statusObj[server.id] = { state: "pending" };
-        const [ip, port] = parseIpString(server.ip);
-        pingPromise(ip, port)
-            .then(data => {
-                statusObj[server.id] = { state: "success", data };
-
-                // update cached icon if needed
-                if(data.favicon) {
-                    const iconHash = hashServerIcon(data.favicon);
-                    if(iconHash !== server.icon_hash) {
-                        setCachedIcon(server, data.favicon)
-                            .then(() => logger.debug(`Updated cached icon for ${server.name} (id ${server.id})`))
-                            .catch(e => logger.warn("Failed to update cached server icon!", e));
-                    }
-                } else if(server.icon_cache) {
-                    // fallback on cached icon if the ping doesn't find one
-                    data.favicon = server.icon_cache;
-                }
-            })
-            .catch(_ => statusObj[server.id] = { state: "failure" })
-            .finally(onUpdate);
-    }
-    return statusObj;
-}
 
 function statusIcon(status: PingStatus) {
     switch(status) {
