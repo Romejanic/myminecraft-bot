@@ -1,7 +1,7 @@
-import { Server, setCachedIcon } from "db";
+import { Server, setCachedIcon } from "./db";
 import { Data, pingPromise } from "minecraft-pinger";
 import { parseIpString, hashServerIcon } from "./util";
-import createLogger from "logger";
+import createLogger from "./logger";
 
 const logger = createLogger("Ping");
 

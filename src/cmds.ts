@@ -1,15 +1,15 @@
 import { CommandContext } from "discord.js-slasher";
 import { EmbedBuilder } from "discord.js";
-import { BUG_REPORTS } from "const";
-import createLogger from "logger";
+import { BUG_REPORTS } from "./const";
+import createLogger from "./logger";
 
-import AddCommand from "commands/add";
-import InfoCommand from "commands/info";
-import ListCommand from "commands/list";
-import StatusCommand from "commands/status";
-import RemoveCommand from "commands/remove";
-import PlayersCommand from "commands/players";
-import PingCommand from "commands/ping";
+import AddCommand from "./commands/add";
+import InfoCommand from "./commands/info";
+import ListCommand from "./commands/list";
+import StatusCommand from "./commands/status";
+import RemoveCommand from "./commands/remove";
+import PlayersCommand from "./commands/players";
+import PingCommand from "./commands/ping";
 
 const logger = createLogger("Commands");
 

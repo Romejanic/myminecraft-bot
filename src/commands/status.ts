@@ -1,11 +1,11 @@
-import { CommandExecutor } from "cmds";
-import { BUG_REPORTS, INT_TIMEOUT, Maybe, SERVER_LIMIT } from "const";
-import { listServers } from "db";
+import { CommandExecutor } from "../cmds";
+import { BUG_REPORTS, INT_TIMEOUT, Maybe, SERVER_LIMIT } from "../const";
+import { listServers } from "../db";
 import { APIEmbedField, ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import createLogger from "logger";
+import createLogger from "../logger";
 import { convertTextComponent, attachEncodedImage, stripTextComponent, stripMinecraftText } from "../util";
 import { format } from "mc-chat-format";
-import pingServers, { PingStatus, PendingData, statusIcon } from "pinger";
+import pingServers, { PingStatus, PendingData, statusIcon } from "../pinger";
 
 const logger = createLogger("StatusCmd");
 

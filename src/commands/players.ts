@@ -1,10 +1,10 @@
-import { CommandExecutor } from "cmds";
-import { BUG_REPORTS, INT_TIMEOUT, Maybe } from "const";
-import { listServers } from "db";
+import { CommandExecutor } from "../cmds";
+import { BUG_REPORTS, INT_TIMEOUT, Maybe } from "../const";
+import { listServers } from "../db";
 import { ActionRowBuilder, AttachmentBuilder, ComponentType, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import createLogger from "logger";
+import createLogger from "../logger";
 import { attachEncodedImage, stripMinecraftText } from "../util";
-import pingServers, { statusIcon } from "pinger";
+import pingServers, { statusIcon } from "../pinger";
 
 const logger = createLogger("PlayersCmd");
 

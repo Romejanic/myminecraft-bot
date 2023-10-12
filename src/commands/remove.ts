@@ -1,8 +1,8 @@
-import { CommandExecutor } from "cmds";
-import { Maybe, BUG_REPORTS, INT_TIMEOUT } from "const";
-import { deleteServer, listServers } from "db";
+import { CommandExecutor } from "../cmds";
+import { Maybe, BUG_REPORTS, INT_TIMEOUT } from "../const";
+import { deleteServer, listServers } from "../db";
 import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import createLogger from "logger";
+import createLogger from "../logger";
 import { attachEncodedImage } from "../util";
 
 const logger = createLogger("RemoveCmd");
