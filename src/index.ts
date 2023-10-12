@@ -1,8 +1,8 @@
 import { SlasherClient, SlasherEvents } from "discord.js-slasher";
 import { Events } from "discord.js";
-import handleCommand from "cmds";
-import createLogger from "logger";
-import { BOT_VERSION } from "const";
+import handleCommand from "./cmds";
+import createLogger from "./logger";
+import { BOT_VERSION } from "./const";
 
 const logger = createLogger("Bot");
 const client = new SlasherClient({});

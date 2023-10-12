@@ -1,6 +1,6 @@
 import { Guild } from "discord.js";
 import { PrismaClient, servers } from "@prisma/client";
-import createLogger from "logger";
+import createLogger from "./logger";
 import { hashServerIcon } from "./util";
 
 const prisma = new PrismaClient();

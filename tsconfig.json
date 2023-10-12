@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "types": ["bun-types"],
-        "baseUrl": "./src",
         "strict": true,
         "skipLibCheck": true
     }

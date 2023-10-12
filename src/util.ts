@@ -1,4 +1,4 @@
-import { EmbedImage, INT_TIMEOUT, ServerAddress } from "const";
+import { EmbedImage, INT_TIMEOUT, ServerAddress } from "./const";
 import { AttachmentBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
 import { Component, convertOld, format } from "mc-chat-format";
 import { Data } from "minecraft-pinger";

@@ -1,6 +1,6 @@
 import { heapStats } from "bun:jsc";
-import { CommandExecutor } from "cmds";
-import { INVITE_LINK, BUG_REPORTS, GITHUB_LINK, SUPPORT_SERVER, botIcon, EMBED_COLOR, BOT_VERSION } from "const";
+import { CommandExecutor } from "../cmds";
+import { INVITE_LINK, BUG_REPORTS, GITHUB_LINK, SUPPORT_SERVER, botIcon, EMBED_COLOR, BOT_VERSION } from "../const";
 import { EmbedBuilder } from "discord.js";
 
 const InfoCommand: CommandExecutor = async (ctx) => {

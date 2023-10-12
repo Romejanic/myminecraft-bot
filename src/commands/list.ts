@@ -1,6 +1,6 @@
-import { CommandExecutor } from "cmds";
-import { SERVER_LIMIT } from "const";
-import { listServers } from "db";
+import { CommandExecutor } from "../cmds";
+import { SERVER_LIMIT } from "../const";
+import { listServers } from "../db";
 import { EmbedBuilder } from "discord.js";
 
 const ListCommand: CommandExecutor = async (ctx) => {

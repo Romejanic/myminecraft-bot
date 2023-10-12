@@ -1,8 +1,8 @@
-import { CommandExecutor } from "cmds";
+import { CommandExecutor } from "../cmds";
 import { AttachmentBuilder, EmbedBuilder } from "discord.js";
 import { attachEncodedImage, convertTextComponent, parseIpString, stripMinecraftText, stripTextComponent } from "../util";
 import { ping, pingPromise } from "minecraft-pinger";
-import { statusIcon } from "pinger";
+import { statusIcon } from "../pinger";
 
 const PingCommand: CommandExecutor = async (ctx) => {
     const address = ctx.options.getString("address", true);
