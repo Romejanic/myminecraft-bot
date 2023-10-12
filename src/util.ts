@@ -2,6 +2,7 @@ import { EmbedImage, INT_TIMEOUT, ServerAddress } from "./const";
 import { AttachmentBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Message, User } from "discord.js";
 import { Component, convertOld, format } from "mc-chat-format";
 import { Data } from "minecraft-pinger";
+import Bun from "./bun-polyfill";
 
 export function parseIpString(ip: string): ServerAddress {
     let port = 25565;

@@ -1,4 +1,5 @@
 import { AttachmentBuilder } from "discord.js";
+import Bun from "./bun-polyfill";
 
 export const BOT_VERSION    = Bun.env["npm_package_version"] || "n/a";
 
